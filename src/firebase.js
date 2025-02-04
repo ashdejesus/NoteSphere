@@ -33,10 +33,17 @@ const logOut = () => signOut(auth);
 // Firestore Functions
 const notesCollection = collection(db, "notes");
 
-const addNote = async (text, user) => {
-  if (!user) return;
-  await addDoc(notesCollection, { text, uid: user.uid, email: user.email, createdAt: new Date() });
-};
+const addNote = async (title, description, user) => {
+    if (!user) return;
+    await addDoc(notesCollection, {
+      title,
+      description,
+      uid: user.uid,
+      email: user.email,
+      createdAt: new Date(),
+    });
+  };
+  
 
 const listenToNotes = (callback) => {
   return onSnapshot(notesCollection, (snapshot) => {
