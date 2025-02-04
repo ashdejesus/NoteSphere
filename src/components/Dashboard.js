@@ -1,38 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { auth, logOut, addNote, listenToNotes, deleteNote } from "../firebase";
+import { auth, logOut, listenToNotes, deleteNote } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { Button, Container, Form, Card, Row, Col } from "react-bootstrap";
+import { Button, Container, Card, Row, Col } from "react-bootstrap";
 import { FaSignOutAlt, FaTrash } from "react-icons/fa";
 
 function Dashboard() {
   const [user, setUser] = useState(null);
-  const [title, setTitle] = useState(""); // State for the note title
-  const [description, setDescription] = useState(""); // State for the note description
   const [notes, setNotes] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (!user) navigate("/");
+      if (!user) navigate("/"); // Redirect to login if user is not authenticated
       else setUser(user);
     });
 
-    const unsubscribeNotes = listenToNotes(setNotes);
+    const unsubscribeNotes = listenToNotes(setNotes); // Listen for real-time note updates
 
     return () => {
       unsubscribeAuth();
       unsubscribeNotes();
     };
   }, [navigate]);
-
-  const handleAddNote = async () => {
-    if (title.trim() && description.trim()) {
-      await addNote(title, description, user);
-      setTitle("");
-      setDescription("");
-    }
-  };
 
   return (
     <Container className="mt-4">
@@ -47,29 +37,14 @@ function Dashboard() {
         </div>
       )}
 
-      {/* Add Note Form with Title and Description */}
-      <Form className="mt-3">
-        <Form.Group>
-          <Form.Control
-            type="text"
-            placeholder="Enter note title..."
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </Form.Group>
-        <Form.Group className="mt-2">
-          <Form.Control
-            as="textarea"
-            rows={3}
-            placeholder="Enter note description..."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </Form.Group>
-        <Button variant="primary" className="mt-2" onClick={handleAddNote}>
-          Add Note
-        </Button>
-      </Form>
+      {/* Button to navigate to the AddNote page */}
+      <Button
+        variant="primary"
+        className="mt-3"
+        onClick={() => navigate("/add-note")}
+      >
+        Add Note
+      </Button>
 
       {/* Cards to Display Notes */}
       <Row className="mt-3">
@@ -84,8 +59,8 @@ function Dashboard() {
             <Col key={note.id} sm={12} md={6} lg={4} className="mb-4">
               <Card>
                 <Card.Body>
-                  <Card.Title>{note.title.slice(0, 30)}...</Card.Title> {/* Preview of Title */}
-                  <Card.Text>{note.description.slice(0, 60)}...</Card.Text> {/* Preview of Description */}
+                  <Card.Title>{note.title.slice(0, 30)}...</Card.Title>
+                  <Card.Text>{note.description.slice(0, 60)}...</Card.Text>
                   <Button
                     variant="outline-danger"
                     size="sm"

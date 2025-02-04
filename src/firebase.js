@@ -34,16 +34,19 @@ const logOut = () => signOut(auth);
 const notesCollection = collection(db, "notes");
 
 const addNote = async (title, description, user) => {
-    if (!user) return;
-    await addDoc(notesCollection, {
-      title,
-      description,
-      uid: user.uid,
-      email: user.email,
-      createdAt: new Date(),
-    });
+    if (!user) return; // Make sure there's a logged-in user
+    try {
+      await addDoc(collection(db, "notes"), {
+        title,
+        description,
+        uid: user.uid,
+        email: user.email,
+        createdAt: new Date(),
+      });
+    } catch (error) {
+      console.error("Error adding note: ", error);
+    }
   };
-  
 
 const listenToNotes = (callback) => {
   return onSnapshot(notesCollection, (snapshot) => {
@@ -55,5 +58,7 @@ const listenToNotes = (callback) => {
 const deleteNote = async (id) => {
   await deleteDoc(doc(db, "notes", id));
 };
+
+
 
 export { auth, signInWithGoogle, logOut, addNote, listenToNotes, deleteNote };
