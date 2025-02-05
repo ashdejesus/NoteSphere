@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { addNote } from '../firebase'; // Import the addNote function from firestore.js
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from '../firebase'; // Assuming you are using Firebase auth
-import { Button, Container, Form } from 'react-bootstrap'; // Import Bootstrap components
+import { Button, Container, Form, Navbar, Nav } from 'react-bootstrap'; // Import Bootstrap components
+import { FaSignOutAlt, FaPlus, FaHome } from "react-icons/fa";
 
 function AddNote() {
   const [title, setTitle] = useState('');
@@ -39,40 +40,68 @@ function AddNote() {
   };
 
   return (
-    <Container className="mt-4" style={{ maxWidth: '600px' }}>
-      <h2 className="text-center mb-4">Add a New Note</h2>
+    <>
+      {/* Navigation Bar */}
+      <Navbar bg="green" variant="green" expand="lg">
+        <Container>
+          <Navbar.Brand style={{ cursor: 'pointer' }} onClick={() => navigate("/dashboard")}>
+            NoteSphere
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link onClick={() => navigate("/dashboard")}>
+                <FaHome /> Dashboard
+              </Nav.Link>
+              <Nav.Link onClick={() => navigate("/add-note")}>
+                <FaPlus /> Add Note
+              </Nav.Link>
+            </Nav>
+            {user && (
+              <Button variant="outline-danger" onClick={() => { /* logOut function */ }}>
+                <FaSignOutAlt /> Logout
+              </Button>
+            )}
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
 
-      <Form>
-        <Form.Group controlId="title">
-          <Form.Label>Title</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Enter the title of your note"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </Form.Group>
+      {/* Add Note Form */}
+      <Container className="mt-4" style={{ maxWidth: '600px' }}>
+        <h2 className="text-center mb-4">Add a New Note</h2>
 
-        <Form.Group controlId="description" className="mt-3">
-          <Form.Label>Description</Form.Label>
-          <Form.Control
-            as="textarea"
-            rows={5}
-            placeholder="Enter the description of your note"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </Form.Group>
+        <Form>
+          <Form.Group controlId="title">
+            <Form.Label>Title</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter the title of your note"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </Form.Group>
 
-        <Button
-          variant="primary"
-          className="mt-3 w-100"
-          onClick={handleAddNote}
-        >
-          Add Note
-        </Button>
-      </Form>
-    </Container>
+          <Form.Group controlId="description" className="mt-3">
+            <Form.Label>Description</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={5}
+              placeholder="Enter the description of your note"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+          </Form.Group>
+
+          <Button
+            variant="primary"
+            className="mt-3 w-100"
+            onClick={handleAddNote}
+          >
+            Add Note
+          </Button>
+        </Form>
+      </Container>
+    </>
   );
 }
 

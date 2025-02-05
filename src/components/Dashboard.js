@@ -12,17 +12,22 @@ function Dashboard() {
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (!user) navigate("/"); // Redirect to login if user is not authenticated
-      else setUser(user);
+      if (!user) {
+        navigate("/"); // Redirect if no user
+      } else {
+        setUser(user);
+        listenToNotes(setNotes).then((unsubscribeNotes) => {
+          // Ensure unsubscribeNotes is a function before calling it
+          return () => unsubscribeNotes && unsubscribeNotes();
+        });
+      }
     });
-
-    const unsubscribeNotes = listenToNotes(setNotes); // Listen for real-time note updates
-
+  
     return () => {
       unsubscribeAuth();
-      unsubscribeNotes();
     };
   }, [navigate]);
+  
 
   return (
     <>
@@ -51,7 +56,7 @@ function Dashboard() {
 
       {/* Dashboard Content */}
       <Container className="mt-4">
-        <h2 className="text-center">NoteSphere Dashboard</h2>
+        <h2 className="text-center">NoteSphere</h2>
 
         {user && (
           <div className="d-flex justify-content-between align-items-center mt-3">

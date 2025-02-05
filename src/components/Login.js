@@ -40,7 +40,7 @@ function Login() {
     <Container className="login-container">
       <Card className="login-card">
         <Card.Body className="text-center">
-          <h2 className="mb-3">📌 Welcome to NoteSphere</h2>
+          <h2 className="mb-3">Welcome to NoteSphere</h2>
           <p className="mb-4">Organize your thoughts effortlessly</p>
 
           {error && <Alert variant="danger">{error}</Alert>}
