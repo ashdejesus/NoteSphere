@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { addNote } from '../firebase'; // Import the addNote function from firestore.js
+import { addNote, logOut} from '../firebase'; // Import the addNote function from firestore.js
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from '../firebase'; // Assuming you are using Firebase auth
 import { Button, Container, Form, Navbar, Nav } from 'react-bootstrap'; // Import Bootstrap components
@@ -42,15 +42,15 @@ function AddNote() {
   return (
     <>
       {/* Navigation Bar */}
-      <Navbar bg="green" variant="green" expand="lg">
+      <Navbar bg="green" variant="green" expand="lg" style={{ fontFamily: "'Space Mono', monospace" }} >
         <Container>
-          <Navbar.Brand style={{ cursor: 'pointer' }} onClick={() => navigate("/dashboard")}>
+          <Navbar.Brand style={{ cursor: 'pointer' }} onClick={() => navigate("/dashboard")} >
             NoteSphere
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link onClick={() => navigate("/dashboard")}>
+            <Nav className="me-auto"   >
+              <Nav.Link onClick={() => navigate("/dashboard")} >
                 <FaHome /> Dashboard
               </Nav.Link>
               <Nav.Link onClick={() => navigate("/add-note")}>
@@ -58,7 +58,7 @@ function AddNote() {
               </Nav.Link>
             </Nav>
             {user && (
-              <Button variant="outline-danger" onClick={() => { /* logOut function */ }}>
+              <Button variant="outline-danger" onClick={logOut}>
                 <FaSignOutAlt /> Logout
               </Button>
             )}
@@ -67,7 +67,7 @@ function AddNote() {
       </Navbar>
 
       {/* Add Note Form */}
-      <Container className="mt-4" style={{ maxWidth: '600px' }}>
+      <Container className="mt-4" style={{ maxWidth: '600px', fontFamily: "'Space Mono', monospace" }}>
         <h2 className="text-center mb-4">Add a New Note</h2>
 
         <Form>

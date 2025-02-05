@@ -22,17 +22,16 @@ function Dashboard() {
         });
       }
     });
-  
+
     return () => {
       unsubscribeAuth();
     };
   }, [navigate]);
-  
 
   return (
     <>
       {/* Navigation Bar */}
-      <Navbar bg="green" variant="green" expand="lg">
+      <Navbar bg="green" variant="green" expand="lg" style={{ fontFamily: "'Space Mono', monospace" }}>
         <Container>
           <Navbar.Brand style={{ cursor: 'pointer' }}>NoteSphere</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -55,7 +54,7 @@ function Dashboard() {
       </Navbar>
 
       {/* Dashboard Content */}
-      <Container className="mt-4">
+      <Container className="mt-4" style={{ fontFamily: "'Space Mono', monospace" }}>
         <h2 className="text-center">NoteSphere</h2>
 
         {user && (
@@ -79,7 +78,7 @@ function Dashboard() {
                   <Card.Body>
                     <Card.Title>{note.title.slice(0, 30)}...</Card.Title>
                     <Card.Text>{note.description.slice(0, 60)}...</Card.Text>
-                    <Button
+                    <Button style={{ fontFamily: "'Space Mono', monospace" }}
                       variant="outline-danger"
                       size="sm"
                       onClick={() => deleteNote(note.id)}

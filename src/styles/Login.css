@@ -1,5 +1,6 @@
 /* Center the login card */
 .login-container {
+  font-family: "Space Mono", serif;
     display: flex;
     justify-content: center;
     align-items: center;

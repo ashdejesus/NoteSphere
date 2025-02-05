@@ -1,13 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { auth, signInWithGoogle } from "../firebase";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword, 
+  updateProfile, 
+  onAuthStateChanged 
+} from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { Button, Container, Card, Form, Alert } from "react-bootstrap";
+import { Button, Container, Card, Form } from "react-bootstrap";
 import { FcGoogle } from "react-icons/fc";
 import "../styles/Login.css"; // Import custom styles
 
 function Login() {
   const navigate = useNavigate();
+  const [name, setName] = useState(""); // Capture user name
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isRegister, setIsRegister] = useState(false);
@@ -25,8 +31,12 @@ function Login() {
 
     try {
       if (isRegister) {
-        // Register a new user
-        await createUserWithEmailAndPassword(auth, email, password);
+        // Register a new user and update their profile with name
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, {
+          displayName: name, // Set the user's name
+        });
+        // Removed the alert here
       } else {
         // Login existing user
         await signInWithEmailAndPassword(auth, email, password);
@@ -40,12 +50,22 @@ function Login() {
     <Container className="login-container">
       <Card className="login-card">
         <Card.Body className="text-center">
-          <h2 className="mb-3">Welcome to NoteSphere</h2>
+          <h2 className="mb-3">Welcome to NoteSphere!</h2>
           <p className="mb-4">Organize your thoughts effortlessly</p>
 
-          {error && <Alert variant="danger">{error}</Alert>}
-
           <Form onSubmit={handleSubmit}>
+            {isRegister && (
+              <Form.Group className="mb-3">
+                <Form.Control
+                  type="text"
+                  placeholder="Full Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                />
+              </Form.Group>
+            )}
+
             <Form.Group className="mb-3">
               <Form.Control
                 type="email"
@@ -96,4 +116,3 @@ function Login() {
 }
 
 export default Login;
-
