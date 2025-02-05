@@ -27,9 +27,9 @@ function Dashboard() {
   return (
     <>
       {/* Navigation Bar */}
-      <Navbar bg="dark" variant="dark" expand="lg">
+      <Navbar bg="green" variant="green" expand="lg">
         <Container>
-          <Navbar.Brand style={{ cursor: 'pointer' }}>📌 NoteSphere</Navbar.Brand>
+          <Navbar.Brand style={{ cursor: 'pointer' }}>NoteSphere</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
@@ -51,7 +51,7 @@ function Dashboard() {
 
       {/* Dashboard Content */}
       <Container className="mt-4">
-        <h2 className="text-center">📌 NoteSphere Dashboard</h2>
+        <h2 className="text-center">NoteSphere Dashboard</h2>
 
         {user && (
           <div className="d-flex justify-content-between align-items-center mt-3">
