@@ -2,12 +2,16 @@ import React, { useState, useEffect } from "react";
 import { auth, logOut, listenToNotes, deleteNote } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { Navbar, Nav, Button, Container, Card, Row, Col } from "react-bootstrap";
-import { FaSignOutAlt, FaTrash, FaPlus, FaHome } from "react-icons/fa";
+import { 
+  AppBar, Toolbar, Typography, IconButton, Drawer, List, ListItem, 
+  ListItemButton, ListItemIcon, ListItemText, CssBaseline, Box, Container, Grid, Card, CardContent 
+} from "@mui/material";
+import { Menu as MenuIcon, Logout as LogoutIcon, Home as HomeIcon, NoteAdd as NoteAddIcon, Delete as DeleteIcon } from "@mui/icons-material";
 
 function Dashboard() {
   const [user, setUser] = useState(null);
   const [notes, setNotes] = useState([]);
+  const [openSidebar, setOpenSidebar] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,7 +21,6 @@ function Dashboard() {
       } else {
         setUser(user);
         listenToNotes(setNotes).then((unsubscribeNotes) => {
-          // Ensure unsubscribeNotes is a function before calling it
           return () => unsubscribeNotes && unsubscribeNotes();
         });
       }
@@ -30,68 +33,91 @@ function Dashboard() {
 
   return (
     <>
-      {/* Navigation Bar */}
-      <Navbar bg="green" variant="green" expand="lg" style={{ fontFamily: "'Space Mono', monospace" }}>
-        <Container>
-          <Navbar.Brand style={{ cursor: 'pointer' }}>NoteSphere</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link onClick={() => navigate("/dashboard")}>
-                <FaHome /> Dashboard
-              </Nav.Link>
-              <Nav.Link onClick={() => navigate("/add-note")}>
-                <FaPlus /> Add Note
-              </Nav.Link>
-            </Nav>
-            {user && (
-              <Button variant="outline-danger" onClick={logOut}>
-                <FaSignOutAlt /> Logout
-              </Button>
-            )}
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+      <CssBaseline />
 
-      {/* Dashboard Content */}
-      <Container className="mt-4" style={{ fontFamily: "'Space Mono', monospace" }}>
-        <h2 className="text-center">NoteSphere</h2>
-
-        {user && (
-          <div className="d-flex justify-content-between align-items-center mt-3">
-            <span>Welcome, {user.displayName}</span>
-          </div>
-        )}
-
-        {/* Cards to Display Notes */}
-        <Row className="mt-3">
-          {notes.length === 0 ? (
-            <Col>
-              <Card className="text-center">
-                <Card.Body>No notes available.</Card.Body>
-              </Card>
-            </Col>
-          ) : (
-            notes.map((note) => (
-              <Col key={note.id} sm={12} md={6} lg={4} className="mb-4">
-                <Card>
-                  <Card.Body>
-                    <Card.Title>{note.title.slice(0, 30)}...</Card.Title>
-                    <Card.Text>{note.description.slice(0, 60)}...</Card.Text>
-                    <Button style={{ fontFamily: "'Space Mono', monospace" }}
-                      variant="outline-danger"
-                      size="sm"
-                      onClick={() => deleteNote(note.id)}
-                    >
-                      <FaTrash />
-                    </Button>
-                  </Card.Body>
-                </Card>
-              </Col>
-            ))
+      {/* Top Navbar */}
+      <AppBar position="fixed" sx={{ backgroundColor: "#FFFFFF" }}>
+        <Toolbar>
+          {/* Sidebar Toggle Button */}
+          <IconButton edge="start" color="000000" onClick={() => setOpenSidebar(!openSidebar)}>
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" sx={{ color:"#000000" , flexGrow: 1, fontFamily: "'Space Mono', monospace" }}>
+            NoteSphere
+          </Typography>
+          {user && (
+            <IconButton color="000000" onClick={logOut}>
+              <LogoutIcon />
+            </IconButton>
           )}
-        </Row>
-      </Container>
+        </Toolbar>
+      </AppBar>
+
+      {/* Sidebar (Drawer) */}
+      <Drawer
+        variant="temporary"
+        open={openSidebar}
+        onClose={() => setOpenSidebar(false)}
+        sx={{ "& .MuiDrawer-paper": { width: 250 } }}
+      >
+        <List>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/dashboard")}>
+              <ListItemIcon><HomeIcon /></ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/add-note")}>
+              <ListItemIcon><NoteAddIcon /></ListItemIcon>
+              <ListItemText primary="Add Note" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Drawer>
+
+      {/* Main Content */}
+      <Box sx={{ mt: 8, ml: openSidebar ? 30 : 0, transition: "margin 0.3s" }}>
+        <Container>
+          <Typography variant="h4" align="center">
+            NoteSphere
+          </Typography>
+
+          {user && (
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              Welcome, {user.displayName}
+            </Typography>
+          )}
+
+          {/* Notes Display */}
+          <Grid container spacing={3} sx={{ mt: 2 }}>
+            {notes.length === 0 ? (
+              <Grid item xs={12}>
+                <Card>
+                  <CardContent>
+                    <Typography align="center">No notes available.</Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ) : (
+              notes.map((note) => (
+                <Grid item xs={12} sm={6} md={4} key={note.id}>
+                  <Card sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", p: 2 }}>
+                    <CardContent>
+                      <Typography variant="h6">{note.title.slice(0, 30)}...</Typography>
+                      <Typography variant="body2">{note.description.slice(0, 60)}...</Typography>
+                    </CardContent>
+                    <IconButton color="error" onClick={() => deleteNote(note.id)}>
+                      <DeleteIcon />
+                    </IconButton>
+                  </Card>
+                </Grid>
+              ))
+            )}
+          </Grid>
+        </Container>
+      </Box>
     </>
   );
 }
