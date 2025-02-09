@@ -4,7 +4,7 @@ import {
   onAuthStateChanged 
 } from "firebase/auth";
 import { 
-  getFirestore, collection, addDoc, query, where, 
+  getFirestore, updateDoc, collection, addDoc, query, where, 
   onSnapshot, deleteDoc, doc 
 } from "firebase/firestore";
 import { getAnalytics } from "firebase/analytics";
@@ -89,6 +89,16 @@ const listenToNotes = (setNotes) => {
   });
 };
 
+// ✏️ Update Note
+const updateNote = async (id, updatedData) => {
+  try {
+    const noteRef = doc(db, "notes", id);
+    await updateDoc(noteRef, updatedData);
+    console.log("Note updated successfully");
+  } catch (error) {
+    console.error("Error updating note:", error);
+  }
+};
 
 // 🗑️ Delete Note (Only User's Notes)
 const deleteNote = async (id) => {
@@ -100,4 +110,4 @@ const deleteNote = async (id) => {
   }
 };
 
-export { auth, signInWithGoogle, logOut, addNote, listenToNotes, deleteNote };
+export { auth, signInWithGoogle, logOut, addNote, listenToNotes, deleteNote, updateNote };

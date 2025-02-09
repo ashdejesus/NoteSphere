@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from "react";
-import { auth, logOut, listenToNotes, deleteNote } from "../firebase";
+import React, { useState, useEffect } from "react"; 
+import { auth, logOut, listenToNotes, deleteNote, updateNote } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { Navbar, Nav, Button, Container, Card, Row, Col } from "react-bootstrap";
-import { FaSignOutAlt, FaTrash, FaPlus, FaHome, FaInfoCircle } from "react-icons/fa";
-import "../styles/Dashboard.css"; // Ensure the styles are imported
+import { Navbar, Nav, Button, Container, Card, Row, Col, Modal, Form } from "react-bootstrap";
+import { FaSignOutAlt, FaTrash, FaPlus, FaHome, FaInfoCircle, FaEdit } from "react-icons/fa";
+import "../styles/Dashboard.css";
 
 function Dashboard() {
   const [user, setUser] = useState(null);
   const [notes, setNotes] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [currentNote, setCurrentNote] = useState({ id: "", title: "", description: "" });
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,9 +31,23 @@ function Dashboard() {
     };
   }, [navigate]);
 
+  const handleEditClick = (note) => {
+    setCurrentNote(note);
+    setShowModal(true);
+  };
+
+  const handleUpdateNote = async () => {
+    if (currentNote.id) {
+      await updateNote(currentNote.id, {
+        title: currentNote.title,
+        description: currentNote.description,
+      });
+      setShowModal(false);
+    }
+  };
+
   return (
     <>
-      {/* Navigation Bar */}
       <Navbar bg="white" variant="white" expand="lg" className="navbar-custom">
         <Container>
           <Navbar.Brand style={{ cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
@@ -58,17 +75,11 @@ function Dashboard() {
         </Container>
       </Navbar>
 
-      {/* Dashboard Content */}
       <Container className="mt-4 dashboard-content">
         <h2 className="text-center">NoteSphere</h2>
 
-        {user && (
-          <div className="d-flex justify-content-between align-items-center mt-3">
-            <span>Welcome, {user.displayName}</span>
-          </div>
-        )}
+        {user && <div className="d-flex justify-content-between align-items-center mt-3"><span>Welcome, {user.displayName}</span></div>}
 
-        {/* Cards to Display Notes */}
         <Row className="mt-3">
           {notes.length === 0 ? (
             <Col>
@@ -83,12 +94,10 @@ function Dashboard() {
                   <Card.Body>
                     <Card.Title>{note.title.slice(0, 30)}...</Card.Title>
                     <Card.Text>{note.description.slice(0, 60)}...</Card.Text>
-                    <Button
-                      variant="outline-danger"
-                      size="sm"
-                      className="delete-btn"
-                      onClick={() => deleteNote(note.id)}
-                    >
+                    <Button variant="outline-warning" size="sm" className="me-2" onClick={() => handleEditClick(note)}>
+                      <FaEdit />
+                    </Button>
+                    <Button variant="outline-danger" size="sm" onClick={() => deleteNote(note.id)}>
                       <FaTrash />
                     </Button>
                   </Card.Body>
@@ -98,6 +107,38 @@ function Dashboard() {
           )}
         </Row>
       </Container>
+
+      {/* Edit Note Modal */}
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Note</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Title</Form.Label>
+              <Form.Control
+                type="text"
+                value={currentNote.title}
+                onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Description</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                value={currentNote.description}
+                onChange={(e) => setCurrentNote({ ...currentNote, description: e.target.value })}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
+          <Button variant="primary" onClick={handleUpdateNote}>Save Changes</Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }
