@@ -4,7 +4,7 @@ import { addNote, logOut} from '../firebase'; // Import the addNote function fro
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from '../firebase'; // Assuming you are using Firebase auth
 import { Button, Container, Form, Navbar, Nav } from 'react-bootstrap'; // Import Bootstrap components
-import { FaSignOutAlt, FaPlus, FaHome } from "react-icons/fa";
+import { FaSignOutAlt, FaPlus, FaHome, FaInfoCircle } from "react-icons/fa";
 
 function AddNote() {
   const [title, setTitle] = useState('');
@@ -56,6 +56,9 @@ function AddNote() {
               <Nav.Link onClick={() => navigate("/add-note")}>
                 <FaPlus /> Add Note
               </Nav.Link>
+              <Nav.Link onClick={() => navigate("/about")}>
+                <FaInfoCircle /> About
+                </Nav.Link>                             
             </Nav>
             {user && (
               <Button variant="outline-danger" onClick={logOut}>
