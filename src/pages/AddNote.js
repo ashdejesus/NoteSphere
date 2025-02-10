@@ -4,7 +4,7 @@ import { addNote, logOut} from '../firebase'; // Import the addNote function fro
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from '../firebase'; // Assuming you are using Firebase auth
 import { Button, Container, Form, Navbar, Nav } from 'react-bootstrap'; // Import Bootstrap components
-import { FaSignOutAlt, FaPlus, FaHome, FaInfoCircle } from "react-icons/fa";
+import { FaSignOutAlt, FaPlus, FaHome, FaInfoCircle, FaQuestionCircle } from "react-icons/fa";
 
 function AddNote() {
   const [title, setTitle] = useState('');
@@ -41,33 +41,36 @@ function AddNote() {
 
   return (
     <>
-      {/* Navigation Bar */}
-      <Navbar bg="green" variant="green" expand="lg" style={{ fontFamily: "'Space Mono', monospace" }} >
-        <Container>
-          <Navbar.Brand style={{ cursor: 'pointer' }} onClick={() => navigate("/dashboard")} >
-            NoteSphere
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto"   >
-              <Nav.Link onClick={() => navigate("/dashboard")} >
-                <FaHome /> Dashboard
-              </Nav.Link>
-              <Nav.Link onClick={() => navigate("/add-note")}>
-                <FaPlus /> Add Note
-              </Nav.Link>
-              <Nav.Link onClick={() => navigate("/about")}>
-                <FaInfoCircle /> About
-                </Nav.Link>                             
-            </Nav>
-            {user && (
-              <Button variant="outline-danger" onClick={logOut}>
-                <FaSignOutAlt /> Logout
-              </Button>
-            )}
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+      <Navbar bg="white" variant="white" expand="lg" className="navbar-custom">
+  <Container>
+    <Navbar.Brand style={{ cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
+      NoteSphere
+    </Navbar.Brand>
+    <Navbar.Toggle aria-controls="basic-navbar-nav" />
+    <Navbar.Collapse id="basic-navbar-nav">
+      <Nav className="me-auto">
+        <Nav.Link onClick={() => navigate("/dashboard")}>
+          <FaHome /> Dashboard
+        </Nav.Link>
+        <Nav.Link onClick={() => navigate("/add-note")}>
+          <FaPlus /> Add Note
+        </Nav.Link>
+        <Nav.Link onClick={() => navigate("/about")}>
+          <FaInfoCircle /> About
+        </Nav.Link>
+        <Nav.Link onClick={() => navigate("/help")}>
+          <FaQuestionCircle /> Help
+        </Nav.Link>
+      </Nav>
+      {user && (
+        <Button variant="outline-danger" onClick={logOut}>
+          <FaSignOutAlt /> Logout
+        </Button>
+      )}
+    </Navbar.Collapse>
+  </Container>
+</Navbar>
+
 
       {/* Add Note Form */}
       <Container className="mt-4" style={{ maxWidth: '600px', fontFamily: "'Space Mono', monospace" }}>

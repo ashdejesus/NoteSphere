@@ -1,27 +1,22 @@
-/* Hide scrollbar while keeping space reserved */
 html {
-  overflow-y: scroll; /* Keeps scrollbar space reserved */
+  overflow-y: scroll; 
 }
 
-/* Hide scrollbar in WebKit-based browsers (Chrome, Edge, Safari) */
 ::-webkit-scrollbar {
   width: 0px;
-  background: transparent; /* Optional: makes it fully invisible */
+  background: transparent; 
 }
 
-/* Prevent horizontal scrolling */
 body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
 }
 
-/* Dashboard Layout */
 .dashboard {
   padding: 20px;
 }
 
-/* Note Cards */
 .note-card {
   padding: 15px;
   background-color: #f8f9fa;
@@ -29,13 +24,12 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Navbar Custom Styling */
 .navbar-custom {
   font-family: "Space Mono", monospace;
   border-bottom: 1px solid #ddd;
 }
 
-/* Dashboard Content */
 .dashboard-content {
   font-family: "Space Mono", monospace;
 }
+
