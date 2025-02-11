@@ -27,6 +27,7 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Box,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -177,18 +178,29 @@ function Dashboard() {
         />
 
         {/* Notes List with Masonry Layout */}
-        <Masonry columns={3} spacing={2} sx={{ mt: 3 }}>
-          {loading
-            ? Array.from(new Array(6)).map((_, index) => (
+        <Box sx={{ mt: 3 }}>
+          {loading ? (
+            <Masonry columns={3} spacing={2}>
+              {Array.from(new Array(6)).map((_, index) => (
                 <Skeleton key={index} variant="rectangular" height={120} animation="wave" />
-              ))
-            : filteredNotes.length === 0
-            ? [<Typography key="no-notes" align="center">No notes found.</Typography>]
-            : filteredNotes.map((note) => (
+              ))}
+            </Masonry>
+          ) : filteredNotes.length === 0 ? (
+            <Box textAlign="center" sx={{ mt: 5 }}>
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                No notes available.
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Click the 'Add Note' button to start creating notes.
+              </Typography>
+            </Box>
+          ) : (
+            <Masonry columns={3} spacing={2}>
+              {filteredNotes.map((note) => (
                 <Card key={note.id} sx={{ transition: "0.3s", "&:hover": { transform: "scale(1.05)" } }}>
                   <CardContent>
-                    <Typography variant="h6">{note.title.slice(0, 30)}...</Typography>
-                    <Typography variant="body2">{note.description.slice(0, 60)}...</Typography>
+                    <Typography variant="h6">{note.title}</Typography>
+                    <Typography variant="body2">{note.description}</Typography>
                     <Grid container spacing={1} sx={{ mt: 1 }}>
                       <Grid item>
                         <IconButton color="warning" onClick={() => handleEditClick(note)}>
@@ -204,37 +216,10 @@ function Dashboard() {
                   </CardContent>
                 </Card>
               ))}
-        </Masonry>
+            </Masonry>
+          )}
+        </Box>
       </Container>
-
-      {/* Edit Note Dialog */}
-      <Dialog open={showDialog} onClose={() => setShowDialog(false)}>
-        <DialogTitle>Edit Note</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            margin="dense"
-            label="Title"
-            value={currentNote.title}
-            onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
-          />
-          <TextField
-            fullWidth
-            margin="dense"
-            label="Description"
-            multiline
-            rows={3}
-            value={currentNote.description}
-            onChange={(e) => setCurrentNote({ ...currentNote, description: e.target.value })}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowDialog(false)}>Cancel</Button>
-          <Button onClick={handleUpdateNote} color="primary">
-            Save Changes
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* Snackbar Notifications */}
       <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
