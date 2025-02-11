@@ -1,106 +1,136 @@
-import React from "react";
-import { Navbar, Nav, Button, Container } from "react-bootstrap";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Button,
+  Container,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+} from "@mui/material";
+import {
+  Menu as MenuIcon,
+  Logout as LogoutIcon,
+  Home as HomeIcon,
+  Info as InfoIcon,
+  Help as HelpIcon,
+  Add as AddIcon,
+  Edit as EditIcon,
+  Delete as DeleteIcon,
+  PushPin as PushPinIcon,
+  QuestionAnswer as FAQIcon,
+} from "@mui/icons-material";
 import { auth, logOut } from "../firebase";
-import { FaHome, FaPlus, FaSignOutAlt, FaInfoCircle, FaQuestionCircle, FaEdit, FaTrash } from "react-icons/fa";
-import { BsPinAngle } from "react-icons/bs";
-import { LuMessageCircleQuestion } from "react-icons/lu";
 
 function Help() {
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
 
   return (
     <>
       {/* Navbar */}
-      <Navbar bg="white" variant="white" expand="lg" className="navbar-custom">
-        <Container>
-          <Navbar.Brand
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate("/dashboard")}
-          >
+      <AppBar position="static" color="default">
+        <Toolbar>
+          <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" sx={{ flexGrow: 1, cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
             NoteSphere
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link onClick={() => navigate("/dashboard")}>
-                <FaHome /> Dashboard
-              </Nav.Link>
-              <Nav.Link onClick={() => navigate("/add-note")}>
-                <FaPlus /> Add Note
-              </Nav.Link>
-              <Nav.Link onClick={() => navigate("/about")}>
-                <FaInfoCircle /> About
-              </Nav.Link>
-              <Nav.Link onClick={() => navigate("/help")}>
-                <FaQuestionCircle /> Help
-              </Nav.Link>
-            </Nav>
-
-            <Button variant="outline-danger" onClick={logOut}>
-              <FaSignOutAlt /> Logout
+          </Typography>
+          {auth.currentUser && (
+            <Button color="error" startIcon={<LogoutIcon />} onClick={logOut}>
+              Logout
             </Button>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+          )}
+        </Toolbar>
+      </AppBar>
+
+      {/* Sidebar Drawer */}
+      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <List sx={{ width: 250 }}>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/dashboard")}>
+              <ListItemIcon><HomeIcon /></ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/add-note")}>
+              <ListItemIcon><AddIcon /></ListItemIcon>
+              <ListItemText primary="Add Note" />
+            </ListItemButton>
+          </ListItem>
+          <Divider />
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/about")}>
+              <ListItemIcon><InfoIcon /></ListItemIcon>
+              <ListItemText primary="About" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/help")}>
+              <ListItemIcon><HelpIcon /></ListItemIcon>
+              <ListItemText primary="Help" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Drawer>
 
       {/* Help Content */}
-      <Container
-        className="mt-4 text-center"
-        style={{ fontFamily: "'Space Mono', monospace" }}
-      >
-        <h2>Need Help?</h2>
-        <p>
-          Welcome to the Help Center! Here you will find information on how to
-          use <strong>NoteSphere</strong> efficiently. If you need additional
-          assistance, feel free to reach out.
-        </p>
+      <Container sx={{ mt: 4, textAlign: "center", fontFamily: "'Space Mono', monospace" }}>
+        <Typography variant="h4">Need Help?</Typography>
+        <Typography variant="body1" sx={{ mt: 2 }}>
+          Welcome to the Help Center! Here you will find information on how to use <strong>NoteSphere</strong> efficiently.
+          If you need additional assistance, feel free to reach out.
+        </Typography>
       </Container>
 
-      <Container
-        className="mt-4 text-start"
-        style={{ fontFamily: "'Space Mono', monospace" }}
-      >
-        <h4>
-          <BsPinAngle /> How to Use NoteSphere
-        </h4>
-        <p>
-          <strong>1. Adding a Note:</strong> Click on <FaPlus /> "Add Note" in
-          the navigation bar to create a new note.
-        </p>
-        <p>
-          <strong>2. Editing a Note:</strong> On your <FaHome /> Dashboard,
-          click the <FaEdit /> edit icon on any note to modify it.
-        </p>
-        <p>
-          <strong>3. Deleting a Note:</strong> Use the <FaTrash /> delete icon
-          to remove unwanted notes.
-        </p>
-        <p>
-          <strong>4. Logging Out:</strong> Click on the <FaSignOutAlt /> Logout
-          button in the navigation bar to sign out.
-        </p>
+      <Container sx={{ mt: 4, fontFamily: "'Space Mono', monospace" }}>
+        <Typography variant="h5" sx={{ display: "flex", alignItems: "center" }}>
+          <PushPinIcon sx={{ mr: 1 }} /> How to Use NoteSphere
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 2 }}>
+          <strong>1. Adding a Note:</strong> Click on <AddIcon fontSize="small" /> "Add Note" in the navigation bar to create a new note.
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 1 }}>
+          <strong>2. Editing a Note:</strong> On your <HomeIcon fontSize="small" /> Dashboard, click the <EditIcon fontSize="small" /> edit icon on any note to modify it.
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 1 }}>
+          <strong>3. Deleting a Note:</strong> Use the <DeleteIcon fontSize="small" /> delete icon to remove unwanted notes.
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 1 }}>
+          <strong>4. Logging Out:</strong> Click on the <LogoutIcon fontSize="small" /> Logout button in the navigation bar to sign out.
+        </Typography>
 
-        <h4>
-          <LuMessageCircleQuestion /> FAQ
-        </h4>
-        <p>
+        <Typography variant="h5" sx={{ mt: 4, display: "flex", alignItems: "center" }}>
+          <FAQIcon sx={{ mr: 1 }} /> FAQ
+        </Typography>
+
+        <Typography variant="body1" sx={{ mt: 2 }}>
           <strong>Q: Are my notes saved automatically?</strong>
-        </p>
-        <p>A: Yes! Notes are stored securely in Firebase Firestore.</p>
+        </Typography>
+        <Typography variant="body2">A: Yes! Notes are stored securely in Firebase Firestore.</Typography>
 
-        <p>
+        <Typography variant="body1" sx={{ mt: 2 }}>
           <strong>Q: Can I access my notes from multiple devices?</strong>
-        </p>
-        <p>
-          A: Absolutely! Just log in with the same account, and your notes
-          will sync across all devices.
-        </p>
+        </Typography>
+        <Typography variant="body2">
+          A: Absolutely! Just log in with the same account, and your notes will sync across all devices.
+        </Typography>
 
-        <p>
+        <Typography variant="body1" sx={{ mt: 2 }}>
           <strong>Q: Who can see my notes?</strong>
-        </p>
-        <p>A: Only you! Your notes are private and accessible only through your account.</p>
+        </Typography>
+        <Typography variant="body2">
+          A: Only you! Your notes are private and accessible only through your account.
+        </Typography>
       </Container>
     </>
   );

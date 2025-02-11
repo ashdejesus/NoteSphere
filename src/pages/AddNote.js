@@ -1,21 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { addNote, logOut} from '../firebase'; // Import the addNote function from firestore.js
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { addNote, auth, logOut } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from '../firebase'; // Assuming you are using Firebase auth
-import { Button, Container, Form, Navbar, Nav } from 'react-bootstrap'; // Import Bootstrap components
-import { FaSignOutAlt, FaPlus, FaHome, FaInfoCircle, FaQuestionCircle } from "react-icons/fa";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Button,
+  Container,
+  TextField,
+  Snackbar,
+  Alert,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+} from "@mui/material";
+import {
+  Menu as MenuIcon,
+  Logout as LogoutIcon,
+  Add as AddIcon,
+  Home as HomeIcon,
+  Info as InfoIcon,
+  Help as HelpIcon,
+} from "@mui/icons-material";
 
 function AddNote() {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [user, setUser] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        navigate("/"); // If user is not authenticated, redirect to login page
+        navigate("/");
       } else {
         setUser(user);
       }
@@ -26,87 +51,103 @@ function AddNote() {
   const handleAddNote = async () => {
     if (title.trim() && description.trim() && user) {
       try {
-        // Add the note
         await addNote(title, description, user);
-
-        // After successful addition, navigate back to the dashboard
-        navigate("/dashboard");
+        setOpenSnackbar(true);
+        setTitle("");
+        setDescription("");
       } catch (error) {
         console.error("Error adding note:", error);
       }
-    } else {
-      console.error("Please fill in both title and description.");
     }
   };
 
   return (
     <>
-      <Navbar bg="white" variant="white" expand="lg" className="navbar-custom">
-  <Container>
-    <Navbar.Brand style={{ cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
-      NoteSphere
-    </Navbar.Brand>
-    <Navbar.Toggle aria-controls="basic-navbar-nav" />
-    <Navbar.Collapse id="basic-navbar-nav">
-      <Nav className="me-auto">
-        <Nav.Link onClick={() => navigate("/dashboard")}>
-          <FaHome /> Dashboard
-        </Nav.Link>
-        <Nav.Link onClick={() => navigate("/add-note")}>
-          <FaPlus /> Add Note
-        </Nav.Link>
-        <Nav.Link onClick={() => navigate("/about")}>
-          <FaInfoCircle /> About
-        </Nav.Link>
-        <Nav.Link onClick={() => navigate("/help")}>
-          <FaQuestionCircle /> Help
-        </Nav.Link>
-      </Nav>
-      {user && (
-        <Button variant="outline-danger" onClick={logOut}>
-          <FaSignOutAlt /> Logout
-        </Button>
-      )}
-    </Navbar.Collapse>
-  </Container>
-</Navbar>
+      {/* Navbar */}
+      <AppBar position="static" color="default">
+        <Toolbar>
+          <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" sx={{ flexGrow: 1, cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
+            NoteSphere
+          </Typography>
+          {user && (
+            <Button color="error" startIcon={<LogoutIcon />} onClick={logOut}>
+              Logout
+            </Button>
+          )}
+        </Toolbar>
+      </AppBar>
 
+      {/* Sidebar Drawer */}
+      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <List sx={{ width: 250 }}>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/dashboard")}>
+              <ListItemIcon><HomeIcon /></ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/add-note")}>
+              <ListItemIcon><AddIcon /></ListItemIcon>
+              <ListItemText primary="Add Note" />
+            </ListItemButton>
+          </ListItem>
+          <Divider />
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/about")}>
+              <ListItemIcon><InfoIcon /></ListItemIcon>
+              <ListItemText primary="About" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/help")}>
+              <ListItemIcon><HelpIcon /></ListItemIcon>
+              <ListItemText primary="Help" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Drawer>
 
       {/* Add Note Form */}
-      <Container className="mt-4" style={{ maxWidth: '600px', fontFamily: "'Space Mono', monospace" }}>
-        <h2 className="text-center mb-4">Add a New Note</h2>
+      <Container maxWidth="sm" sx={{ mt: 4 }}>
+        <Typography variant="h4" textAlign="center" gutterBottom>
+          Add a New Note
+        </Typography>
 
-        <Form>
-          <Form.Group controlId="title">
-            <Form.Label>Title</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter the title of your note"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </Form.Group>
+        <TextField
+          fullWidth
+          label="Title"
+          variant="outlined"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          sx={{ mb: 2 }}
+          autoFocus
+        />
 
-          <Form.Group controlId="description" className="mt-3">
-            <Form.Label>Description</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={5}
-              placeholder="Enter the description of your note"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </Form.Group>
+        <TextField
+          fullWidth
+          label="Description"
+          multiline
+          rows={5}
+          variant="outlined"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-          <Button
-            variant="primary"
-            className="mt-3 w-100"
-            onClick={handleAddNote}
-          >
-            Add Note
-          </Button>
-        </Form>
+        <Button variant="contained" color="primary" fullWidth sx={{ mt: 3 }} onClick={handleAddNote}>
+          Add Note
+        </Button>
       </Container>
+
+      {/* Snackbar Notification */}
+      <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={() => setOpenSnackbar(false)}>
+        <Alert severity="success" onClose={() => setOpenSnackbar(false)}>
+          Note added successfully!
+        </Alert>
+      </Snackbar>
     </>
   );
 }

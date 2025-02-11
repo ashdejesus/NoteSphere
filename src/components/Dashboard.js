@@ -2,17 +2,55 @@ import React, { useState, useEffect } from "react";
 import { auth, logOut, listenToNotes, deleteNote, updateNote } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { Navbar, Nav, Button, Container, Card, Row, Col, Modal, Form } from "react-bootstrap";
-import { FaSignOutAlt, FaTrash, FaPlus, FaHome, FaInfoCircle, FaEdit, FaQuestionCircle, FaSearch } from "react-icons/fa";
-import "../styles/Dashboard.css";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Button,
+  Container,
+  Card,
+  CardContent,
+  Grid,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Snackbar,
+  Alert,
+  Skeleton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+} from "@mui/material";
+import {
+  Menu as MenuIcon,
+  Logout as LogoutIcon,
+  Add as AddIcon,
+  Home as HomeIcon,
+  Info as InfoIcon,
+  Help as HelpIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Search as SearchIcon,
+} from "@mui/icons-material";
+import Masonry from "@mui/lab/Masonry";
 
 function Dashboard() {
   const [user, setUser] = useState(null);
   const [notes, setNotes] = useState([]);
   const [filteredNotes, setFilteredNotes] = useState([]);
-  const [searchQuery, setSearchQuery] = useState(""); 
-  const [showModal, setShowModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showDialog, setShowDialog] = useState(false);
   const [currentNote, setCurrentNote] = useState({ id: "", title: "", description: "" });
+  const [loading, setLoading] = useState(true);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -23,14 +61,13 @@ function Dashboard() {
       } else {
         setUser(user);
         listenToNotes(setNotes).then((unsubscribeNotes) => {
+          setTimeout(() => setLoading(false), 1500);
           return () => unsubscribeNotes && unsubscribeNotes();
         });
       }
     });
 
-    return () => {
-      unsubscribeAuth();
-    };
+    return () => unsubscribeAuth();
   }, [navigate]);
 
   useEffect(() => {
@@ -50,7 +87,7 @@ function Dashboard() {
 
   const handleEditClick = (note) => {
     setCurrentNote(note);
-    setShowModal(true);
+    setShowDialog(true);
   };
 
   const handleUpdateNote = async () => {
@@ -59,126 +96,152 @@ function Dashboard() {
         title: currentNote.title,
         description: currentNote.description,
       });
-      setShowModal(false);
+      setShowDialog(false);
+      setSnackbar({ open: true, message: "Note updated successfully!", severity: "success" });
     }
   };
 
   return (
     <>
-      <Navbar bg="white" variant="white" expand="lg" className="navbar-custom">
-        <Container>
-          <Navbar.Brand style={{ cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
+      {/* Navbar */}
+      <AppBar position="static" color="default">
+        <Toolbar>
+          <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" sx={{ flexGrow: 1, cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
             NoteSphere
-          </Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link onClick={() => navigate("/dashboard")}>
-                <FaHome /> Dashboard
-              </Nav.Link>
-              <Nav.Link onClick={() => navigate("/add-note")}>
-                <FaPlus /> Add Note
-              </Nav.Link>
-              <Nav.Link onClick={() => navigate("/about")}>
-                <FaInfoCircle /> About
-              </Nav.Link>
-              <Nav.Link onClick={() => navigate("/help")}>
-                <FaQuestionCircle /> Help
-              </Nav.Link>
-            </Nav>
-            {user && (
-              <Button variant="outline-danger" onClick={logOut}>
-                <FaSignOutAlt /> Logout
-              </Button>
-            )}
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+          </Typography>
+          {user && (
+            <Button color="error" startIcon={<LogoutIcon />} onClick={logOut}>
+              Logout
+            </Button>
+          )}
+        </Toolbar>
+      </AppBar>
 
-      <Container className="mt-4 dashboard-content">
-        <h2 className="text-center">NoteSphere</h2>
+      {/* Sidebar Drawer */}
+      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <List sx={{ width: 250 }}>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/dashboard")}>
+              <ListItemIcon><HomeIcon /></ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/add-note")}>
+              <ListItemIcon><AddIcon /></ListItemIcon>
+              <ListItemText primary="Add Note" />
+            </ListItemButton>
+          </ListItem>
+          <Divider />
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/about")}>
+              <ListItemIcon><InfoIcon /></ListItemIcon>
+              <ListItemText primary="About" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/help")}>
+              <ListItemIcon><HelpIcon /></ListItemIcon>
+              <ListItemText primary="Help" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Drawer>
 
-        {user && <div className="d-flex justify-content-between align-items-center mt-3">
-          <span>Welcome, {user.displayName}</span>
-        </div>}
+      {/* Main Content */}
+      <Container sx={{ mt: 4 }}>
+        <Typography variant="h4" align="center">
+          NoteSphere
+        </Typography>
+
+        {user && (
+          <Typography variant="subtitle1" align="center" sx={{ mt: 1 }}>
+            Welcome, {user.displayName}
+          </Typography>
+        )}
 
         {/* Search Bar */}
-        <Form className="mt-3">
-          <Form.Group controlId="searchNotes">
-            <div className="d-flex">
-              <Form.Control
-                type="text"
-                placeholder="Search notes..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="me-2"
-              />
-              <Button variant="primary">
-                <FaSearch />
-              </Button>
-            </div>
-          </Form.Group>
-        </Form>
+        <TextField
+          fullWidth
+          variant="outlined"
+          placeholder="Search notes..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          sx={{ mt: 3 }}
+          InputProps={{
+            endAdornment: <SearchIcon />,
+          }}
+        />
 
-        <Row className="mt-3">
-          {filteredNotes.length === 0 ? (
-            <Col>
-              <Card className="text-center">
-                <Card.Body>No notes found.</Card.Body>
-              </Card>
-            </Col>
-          ) : (
-            filteredNotes.map((note) => (
-              <Col key={note.id} sm={12} md={6} lg={4} className="mb-4">
-                <Card className="note-card">
-                  <Card.Body>
-                    <Card.Title>{note.title.slice(0, 30)}...</Card.Title>
-                    <Card.Text>{note.description.slice(0, 60)}...</Card.Text>
-                    <Button variant="outline-warning" size="sm" className="me-2" onClick={() => handleEditClick(note)}>
-                      <FaEdit />
-                    </Button>
-                    <Button variant="outline-danger" size="sm" onClick={() => deleteNote(note.id)}>
-                      <FaTrash />
-                    </Button>
-                  </Card.Body>
+        {/* Notes List with Masonry Layout */}
+        <Masonry columns={3} spacing={2} sx={{ mt: 3 }}>
+          {loading
+            ? Array.from(new Array(6)).map((_, index) => (
+                <Skeleton key={index} variant="rectangular" height={120} animation="wave" />
+              ))
+            : filteredNotes.length === 0
+            ? [<Typography key="no-notes" align="center">No notes found.</Typography>]
+            : filteredNotes.map((note) => (
+                <Card key={note.id} sx={{ transition: "0.3s", "&:hover": { transform: "scale(1.05)" } }}>
+                  <CardContent>
+                    <Typography variant="h6">{note.title.slice(0, 30)}...</Typography>
+                    <Typography variant="body2">{note.description.slice(0, 60)}...</Typography>
+                    <Grid container spacing={1} sx={{ mt: 1 }}>
+                      <Grid item>
+                        <IconButton color="warning" onClick={() => handleEditClick(note)}>
+                          <EditIcon />
+                        </IconButton>
+                      </Grid>
+                      <Grid item>
+                        <IconButton color="error" onClick={() => deleteNote(note.id)}>
+                          <DeleteIcon />
+                        </IconButton>
+                      </Grid>
+                    </Grid>
+                  </CardContent>
                 </Card>
-              </Col>
-            ))
-          )}
-        </Row>
+              ))}
+        </Masonry>
       </Container>
 
-      {/* Edit Note Modal */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Edit Note</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Title</Form.Label>
-              <Form.Control
-                type="text"
-                value={currentNote.title}
-                onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={3}
-                value={currentNote.description}
-                onChange={(e) => setCurrentNote({ ...currentNote, description: e.target.value })}
-              />
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
-          <Button variant="primary" onClick={handleUpdateNote}>Save Changes</Button>
-        </Modal.Footer>
-      </Modal>
+      {/* Edit Note Dialog */}
+      <Dialog open={showDialog} onClose={() => setShowDialog(false)}>
+        <DialogTitle>Edit Note</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            margin="dense"
+            label="Title"
+            value={currentNote.title}
+            onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
+          />
+          <TextField
+            fullWidth
+            margin="dense"
+            label="Description"
+            multiline
+            rows={3}
+            value={currentNote.description}
+            onChange={(e) => setCurrentNote({ ...currentNote, description: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDialog(false)}>Cancel</Button>
+          <Button onClick={handleUpdateNote} color="primary">
+            Save Changes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Snackbar Notifications */}
+      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 }
