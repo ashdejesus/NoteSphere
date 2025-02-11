@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import { auth, logOut, listenToNotes, deleteNote, updateNote } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { Navbar, Nav, Button, Container, Card, Row, Col, Modal, Form } from "react-bootstrap";
-import { FaSignOutAlt, FaTrash, FaPlus, FaHome, FaInfoCircle, FaEdit, FaQuestionCircle } from "react-icons/fa";
+import { FaSignOutAlt, FaTrash, FaPlus, FaHome, FaInfoCircle, FaEdit, FaQuestionCircle, FaSearch } from "react-icons/fa";
 import "../styles/Dashboard.css";
 
 function Dashboard() {
   const [user, setUser] = useState(null);
   const [notes, setNotes] = useState([]);
+  const [filteredNotes, setFilteredNotes] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(""); 
   const [showModal, setShowModal] = useState(false);
   const [currentNote, setCurrentNote] = useState({ id: "", title: "", description: "" });
 
@@ -31,6 +33,21 @@ function Dashboard() {
     };
   }, [navigate]);
 
+  useEffect(() => {
+    if (searchQuery.trim() === "") {
+      setFilteredNotes(notes);
+    } else {
+      const lowerQuery = searchQuery.toLowerCase();
+      setFilteredNotes(
+        notes.filter(
+          (note) =>
+            note.title.toLowerCase().includes(lowerQuery) ||
+            note.description.toLowerCase().includes(lowerQuery)
+        )
+      );
+    }
+  }, [searchQuery, notes]);
+
   const handleEditClick = (note) => {
     setCurrentNote(note);
     setShowModal(true);
@@ -49,50 +66,69 @@ function Dashboard() {
   return (
     <>
       <Navbar bg="white" variant="white" expand="lg" className="navbar-custom">
-  <Container>
-    <Navbar.Brand style={{ cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
-      NoteSphere
-    </Navbar.Brand>
-    <Navbar.Toggle aria-controls="basic-navbar-nav" />
-    <Navbar.Collapse id="basic-navbar-nav">
-      <Nav className="me-auto">
-        <Nav.Link onClick={() => navigate("/dashboard")}>
-          <FaHome /> Dashboard
-        </Nav.Link>
-        <Nav.Link onClick={() => navigate("/add-note")}>
-          <FaPlus /> Add Note
-        </Nav.Link>
-        <Nav.Link onClick={() => navigate("/about")}>
-          <FaInfoCircle /> About
-        </Nav.Link>
-        <Nav.Link onClick={() => navigate("/help")}>
-          <FaQuestionCircle /> Help
-        </Nav.Link>
-      </Nav>
-      {user && (
-        <Button variant="outline-danger" onClick={logOut}>
-          <FaSignOutAlt /> Logout
-        </Button>
-      )}
-    </Navbar.Collapse>
-  </Container>
-</Navbar>
-
+        <Container>
+          <Navbar.Brand style={{ cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
+            NoteSphere
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link onClick={() => navigate("/dashboard")}>
+                <FaHome /> Dashboard
+              </Nav.Link>
+              <Nav.Link onClick={() => navigate("/add-note")}>
+                <FaPlus /> Add Note
+              </Nav.Link>
+              <Nav.Link onClick={() => navigate("/about")}>
+                <FaInfoCircle /> About
+              </Nav.Link>
+              <Nav.Link onClick={() => navigate("/help")}>
+                <FaQuestionCircle /> Help
+              </Nav.Link>
+            </Nav>
+            {user && (
+              <Button variant="outline-danger" onClick={logOut}>
+                <FaSignOutAlt /> Logout
+              </Button>
+            )}
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
 
       <Container className="mt-4 dashboard-content">
         <h2 className="text-center">NoteSphere</h2>
 
-        {user && <div className="d-flex justify-content-between align-items-center mt-3"><span>Welcome, {user.displayName}</span></div>}
+        {user && <div className="d-flex justify-content-between align-items-center mt-3">
+          <span>Welcome, {user.displayName}</span>
+        </div>}
+
+        {/* Search Bar */}
+        <Form className="mt-3">
+          <Form.Group controlId="searchNotes">
+            <div className="d-flex">
+              <Form.Control
+                type="text"
+                placeholder="Search notes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="me-2"
+              />
+              <Button variant="primary">
+                <FaSearch />
+              </Button>
+            </div>
+          </Form.Group>
+        </Form>
 
         <Row className="mt-3">
-          {notes.length === 0 ? (
+          {filteredNotes.length === 0 ? (
             <Col>
               <Card className="text-center">
-                <Card.Body>No notes available.</Card.Body>
+                <Card.Body>No notes found.</Card.Body>
               </Card>
             </Col>
           ) : (
-            notes.map((note) => (
+            filteredNotes.map((note) => (
               <Col key={note.id} sm={12} md={6} lg={4} className="mb-4">
                 <Card className="note-card">
                   <Card.Body>
