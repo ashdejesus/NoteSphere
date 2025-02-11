@@ -26,7 +26,7 @@ body {
 
 .navbar-custom {
   font-family: "Space Mono", monospace;
-  border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
 }
 
 .dashboard-content {
