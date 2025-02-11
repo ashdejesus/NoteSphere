@@ -221,6 +221,35 @@ function Dashboard() {
         </Box>
       </Container>
 
+         {/* Edit Note Dialog */}
+         <Dialog open={showDialog} onClose={() => setShowDialog(false)}>
+        <DialogTitle>Edit Note</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth
+            margin="dense"
+            label="Title"
+            value={currentNote.title}
+            onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
+          />
+          <TextField
+            fullWidth
+            margin="dense"
+            label="Description"
+            multiline
+            rows={3}
+            value={currentNote.description}
+            onChange={(e) => setCurrentNote({ ...currentNote, description: e.target.value })}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDialog(false)}>Cancel</Button>
+          <Button onClick={handleUpdateNote} color="primary">
+            Save Changes
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Snackbar Notifications */}
       <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
         <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
