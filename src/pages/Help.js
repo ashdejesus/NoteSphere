@@ -44,11 +44,6 @@ function Help() {
           <Typography variant="h6" sx={{ flexGrow: 1, cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
             NoteSphere
           </Typography>
-          {auth.currentUser && (
-            <Button color="error" startIcon={<LogoutIcon />} onClick={logOut}>
-              Logout
-            </Button>
-          )}
         </Toolbar>
       </AppBar>
 

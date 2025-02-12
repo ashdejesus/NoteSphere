@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AppBar,
+  Avatar,
   Toolbar,
   Typography,
   IconButton,
@@ -13,6 +14,8 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
+  Menu,
+  MenuItem,
   Divider,
   Box,
   Link,
@@ -39,19 +42,15 @@ function About() {
     <>
       {/* Navbar */}
       <AppBar position="static" color="default">
-        <Toolbar>
-          <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1, cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
-            NoteSphere
-          </Typography>
-          {auth.currentUser && (
-            <Button color="error" startIcon={<LogoutIcon />} onClick={logOut}>
-              Logout
-            </Button>
-          )}
-        </Toolbar>
+      <Toolbar>
+  <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
+    <MenuIcon />
+  </IconButton>
+  <Typography variant="h6" sx={{ flexGrow: 1, cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
+    NoteSphere
+  </Typography>
+</Toolbar>
+
       </AppBar>
 
       {/* Sidebar Drawer */}
