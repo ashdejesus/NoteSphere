@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { auth, logOut, listenToNotes, deleteNote, updateNote } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { useMediaQuery } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+
 import {
   AppBar,
   Toolbar,
@@ -52,6 +55,8 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const isSmallScreen = useMediaQuery("(max-width:600px)");
+  const isTabletScreen = useMediaQuery("(max-width:900px)");
 
   const navigate = useNavigate();
 
@@ -123,33 +128,43 @@ function Dashboard() {
 
       {/* Sidebar Drawer */}
       <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-        <List sx={{ width: 250 }}>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => navigate("/dashboard")}>
-              <ListItemIcon><HomeIcon /></ListItemIcon>
-              <ListItemText primary="Dashboard" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => navigate("/add-note")}>
-              <ListItemIcon><AddIcon /></ListItemIcon>
-              <ListItemText primary="Add Note" />
-            </ListItemButton>
-          </ListItem>
-          <Divider />
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => navigate("/about")}>
-              <ListItemIcon><InfoIcon /></ListItemIcon>
-              <ListItemText primary="About" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton onClick={() => navigate("/help")}>
-              <ListItemIcon><HelpIcon /></ListItemIcon>
-              <ListItemText primary="Help" />
-            </ListItemButton>
-          </ListItem>
-        </List>
+      <List sx={{ width: 250, p: 2, display: "flex", flexDirection: "column", alignItems: "center" }}>
+  {user && (
+    <Avatar sx={{ bgcolor: "primary.main", width: 56, height: 56, mb: 1 }}>
+      {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
+    </Avatar>
+  )}
+  <Typography variant="h6" sx={{ mb: 2 }}>
+    {user ? user.displayName : "Guest"}
+  </Typography>
+  <Divider sx={{ width: "100%", mb: 2 }} />
+  
+  <ListItem disablePadding>
+    <ListItemButton onClick={() => navigate("/dashboard")}>
+      <ListItemIcon><HomeIcon /></ListItemIcon>
+      <ListItemText primary="Dashboard" />
+    </ListItemButton>
+  </ListItem>
+  <ListItem disablePadding>
+    <ListItemButton onClick={() => navigate("/add-note")}>
+      <ListItemIcon><AddIcon /></ListItemIcon>
+      <ListItemText primary="Add Note" />
+    </ListItemButton>
+  </ListItem>
+  <Divider />
+  <ListItem disablePadding>
+    <ListItemButton onClick={() => navigate("/about")}>
+      <ListItemIcon><InfoIcon /></ListItemIcon>
+      <ListItemText primary="About" />
+    </ListItemButton>
+  </ListItem>
+  <ListItem disablePadding>
+    <ListItemButton onClick={() => navigate("/help")}>
+      <ListItemIcon><HelpIcon /></ListItemIcon>
+      <ListItemText primary="Help" />
+    </ListItemButton>
+  </ListItem>
+</List>
       </Drawer>
 
       {/* Main Content */}
@@ -178,47 +193,47 @@ function Dashboard() {
         />
 
         {/* Notes List with Masonry Layout */}
-        <Box sx={{ mt: 3 }}>
-          {loading ? (
-            <Masonry columns={3} spacing={2}>
-              {Array.from(new Array(6)).map((_, index) => (
-                <Skeleton key={index} variant="rectangular" height={120} animation="wave" />
-              ))}
-            </Masonry>
-          ) : filteredNotes.length === 0 ? (
-            <Box textAlign="center" sx={{ mt: 5 }}>
-              <Typography variant="h6" sx={{ mt: 2 }}>
-                No notes available.
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
-                Click the 'Add Note' button to start creating notes.
-              </Typography>
-            </Box>
-          ) : (
-            <Masonry columns={3} spacing={2}>
-              {filteredNotes.map((note) => (
-                <Card key={note.id} sx={{ transition: "0.3s", "&:hover": { transform: "scale(1.05)" } }}>
-                  <CardContent>
-                    <Typography variant="h6">{note.title}</Typography>
-                    <Typography variant="body2">{note.description}</Typography>
-                    <Grid container spacing={1} sx={{ mt: 1 }}>
-                      <Grid item>
-                        <IconButton color="warning" onClick={() => handleEditClick(note)}>
-                          <EditIcon />
-                        </IconButton>
-                      </Grid>
-                      <Grid item>
-                        <IconButton color="error" onClick={() => deleteNote(note.id)}>
-                          <DeleteIcon />
-                        </IconButton>
-                      </Grid>
+      <Box sx={{ mt: 3 }}>
+        {loading ? (
+          <Masonry columns={isSmallScreen ? 1 : isTabletScreen ? 2 : 3} spacing={2}>
+            {Array.from(new Array(6)).map((_, index) => (
+              <Skeleton key={index} variant="rectangular" height={120} animation="wave" />
+            ))}
+          </Masonry>
+        ) : filteredNotes.length === 0 ? (
+          <Box textAlign="center" sx={{ mt: 5 }}>
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              No notes available.
+            </Typography>
+            <Typography variant="body2" color="textSecondary">
+              Click the 'Add Note' button to start creating notes.
+            </Typography>
+          </Box>
+        ) : (
+          <Masonry columns={isSmallScreen ? 1 : isTabletScreen ? 2 : 3} spacing={2}>
+            {filteredNotes.map((note) => (
+              <Card key={note.id} sx={{ transition: "0.3s", "&:hover": { transform: "scale(1.05)" } }}>
+                <CardContent>
+                  <Typography variant="h6">{note.title}</Typography>
+                  <Typography variant="body2">{note.description}</Typography>
+                  <Grid container spacing={1} sx={{ mt: 1 }}>
+                    <Grid item>
+                      <IconButton color="warning" onClick={() => handleEditClick(note)}>
+                        <EditIcon />
+                      </IconButton>
                     </Grid>
-                  </CardContent>
-                </Card>
-              ))}
-            </Masonry>
-          )}
-        </Box>
+                    <Grid item>
+                      <IconButton color="error" onClick={() => deleteNote(note.id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    </Grid>
+                  </Grid>
+                </CardContent>
+              </Card>
+            ))}
+          </Masonry>
+        )}
+      </Box>
       </Container>
 
          {/* Edit Note Dialog */}
@@ -251,8 +266,17 @@ function Dashboard() {
       </Dialog>
 
       {/* Snackbar Notifications */}
-      <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-        <Alert severity={snackbar.severity} onClose={() => setSnackbar({ ...snackbar, open: false })}>
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={3000} 
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert 
+          severity={snackbar.severity} 
+          onClose={() => setSnackbar({ ...snackbar, open: false })} 
+          sx={{ width: "300px", textAlign: "center" }} 
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>

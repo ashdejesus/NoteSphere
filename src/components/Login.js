@@ -17,7 +17,7 @@ import {
   Alert, 
   CircularProgress 
 } from "@mui/material";
-import { FcGoogle } from "react-icons/fc";
+import GoogleIcon from "@mui/icons-material/Google";
 
 function Login() {
   const navigate = useNavigate();
@@ -123,9 +123,9 @@ function Login() {
         <Button 
           variant="outlined" 
           fullWidth 
-          sx={{ mt: 2 }} 
+          sx={{ mt: 2, textTransform: "none" }} 
           onClick={signInWithGoogle}
-          startIcon={<FcGoogle />}
+          startIcon={<GoogleIcon />}
         >
           Sign in with Google
         </Button>
