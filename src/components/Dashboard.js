@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { auth, logOut, listenToNotes, deleteNote, updateNote } from "../firebase";
+import { auth, logOut, listenToNotes, deleteNote, updateNote, togglePinNote } from "../firebase"; 
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from "@mui/material";
@@ -42,6 +42,7 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
   Search as SearchIcon,
+  PushPin as PinIcon, 
 } from "@mui/icons-material";
 import Masonry from "@mui/lab/Masonry";
 
@@ -105,6 +106,15 @@ function Dashboard() {
       setShowDialog(false);
       setSnackbar({ open: true, message: "Note updated successfully!", severity: "success" });
     }
+  };
+
+  const handleTogglePinNote = async (noteId, isPinned) => {
+    await togglePinNote(noteId, !isPinned);
+    setSnackbar({
+      open: true,
+      message: isPinned ? "Note unpinned successfully!" : "Note pinned successfully!",
+      severity: "success",
+    });
   };
 
   return (
@@ -211,7 +221,8 @@ function Dashboard() {
           </Box>
         ) : (
           <Masonry columns={isSmallScreen ? 1 : isTabletScreen ? 2 : 3} spacing={2}>
-            {filteredNotes.map((note) => (
+              {/* try sotring it  */}
+            {filteredNotes.sort((a, b) => (b.pinned ? 1 : -1)).map((note) => ( 
               <Card key={note.id} sx={{ transition: "0.3s", "&:hover": { transform: "scale(1.05)" } }}>
                 <CardContent>
                   <Typography variant="h6">{note.title}</Typography>
@@ -227,6 +238,14 @@ function Dashboard() {
                         <DeleteIcon />
                       </IconButton>
                     </Grid>
+                      <Grid item>
+                        <IconButton
+                          color={note.pinned ? "primary" : "default"}
+                          onClick={() => handleTogglePinNote(note.id, note.pinned)}
+                        >
+                          <PinIcon />
+                        </IconButton>
+                      </Grid>
                   </Grid>
                 </CardContent>
               </Card>
@@ -236,8 +255,8 @@ function Dashboard() {
       </Box>
       </Container>
 
-         {/* Edit Note Dialog */}
-         <Dialog open={showDialog} onClose={() => setShowDialog(false)}>
+      {/* Edit Note Dialog */}
+      <Dialog open={showDialog} onClose={() => setShowDialog(false)}>
         <DialogTitle>Edit Note</DialogTitle>
         <DialogContent>
           <TextField

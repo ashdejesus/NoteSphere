@@ -110,4 +110,10 @@ const deleteNote = async (id) => {
   }
 };
 
-export { auth, signInWithGoogle, logOut, addNote, listenToNotes, deleteNote, updateNote };
+const togglePinNote = async (noteId, isPinned) => {
+  await updateDoc(doc(db, "notes", noteId), {
+    pinned: isPinned,
+  });
+};
+
+export { auth, signInWithGoogle, logOut, addNote, listenToNotes, deleteNote, updateNote, togglePinNote };
