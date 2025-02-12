@@ -143,11 +143,21 @@ function AddNote() {
       </Container>
 
       {/* Snackbar Notification */}
-      <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={() => setOpenSnackbar(false)}>
-        <Alert severity="success" onClose={() => setOpenSnackbar(false)}>
-          Note added successfully!
-        </Alert>
-      </Snackbar>
+<Snackbar 
+  open={openSnackbar} 
+  autoHideDuration={3000} 
+  onClose={() => setOpenSnackbar(false)}
+  anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} // Ensures proper placement
+>
+  <Alert 
+    severity="success" 
+    onClose={() => setOpenSnackbar(false)} 
+    sx={{ width: "300px", textAlign: "center" }} // Fixes the width
+  >
+    Note added successfully!
+  </Alert>
+</Snackbar>
+
     </>
   );
 }
