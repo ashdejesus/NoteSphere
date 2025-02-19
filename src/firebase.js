@@ -5,9 +5,8 @@ import {
 } from "firebase/auth";
 import { 
   getFirestore, updateDoc, collection, addDoc, query, where, 
-  onSnapshot, deleteDoc, doc 
+  onSnapshot, deleteDoc, doc ,serverTimestamp 
 } from "firebase/firestore";
-import { getAnalytics } from "firebase/analytics";
 
 // 🔐 Firebase Configuration
 const firebaseConfig = {
@@ -25,7 +24,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 const db = getFirestore(app);
-const analytics = getAnalytics(app);
+// const analytics = getAnalytics(app);
 
 // 🔐 Google Sign-In
 const signInWithGoogle = async () => {
@@ -62,9 +61,11 @@ const addNote = async (title, description) => {
     await addDoc(notesCollection, {
       title,
       description,
-      uid: user.uid,  // 🔐 Store User ID
+      uid: user.uid,  
       email: user.email,
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),  // ✅ Use serverTimestamp
+      updatedAt: serverTimestamp(),  // ✅ Initial update timestamp
+      pinned: false,  // Default to unpinned
     });
     console.log("Note added successfully");
   } catch (error) {
@@ -93,12 +94,16 @@ const listenToNotes = (setNotes) => {
 const updateNote = async (id, updatedData) => {
   try {
     const noteRef = doc(db, "notes", id);
-    await updateDoc(noteRef, updatedData);
+    await updateDoc(noteRef, {
+      ...updatedData,
+      updatedAt: serverTimestamp(),  // ✅ Update timestamp on edit
+    });
     console.log("Note updated successfully");
   } catch (error) {
     console.error("Error updating note:", error);
   }
 };
+
 
 // 🗑️ Delete Note (Only User's Notes)
 const deleteNote = async (id) => {
