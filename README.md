@@ -12,5 +12,5 @@ NoteSphere is a smart note-taking application that allows users to organize and 
 
 ## Tech Stack
 
-- **Frontend**: React.js, React Router, Bootstrap, React Icons
+- **Frontend**: React.js, React Router, MUI (Material-UI), Vite
 - **Backend**: Firebase (Firestore, Firebase Auth, Firebase Storage)

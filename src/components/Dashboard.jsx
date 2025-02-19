@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { auth, logOut, listenToNotes, deleteNote, updateNote, togglePinNote } from "../firebase";
+import { auth, logOut, listenToNotes, deleteNote, updateNote, addNote } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { useMediaQuery } from "@mui/material";
+import { useMediaQuery, Grow } from "@mui/material";
 import Avatar from "@mui/material/Avatar";
 import {
-  AppBar, Toolbar, Typography, IconButton, Button, Container, Card, CardContent, InputAdornment, Dialog, DialogTitle, DialogContent,
+  AppBar, Toolbar, Typography, IconButton, Button, Container, CardContent, InputAdornment, Dialog, DialogTitle, DialogContent,
   DialogActions, TextField, Snackbar, Alert, Skeleton, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Divider, Box,
 } from "@mui/material";
 import {
@@ -24,6 +24,7 @@ function Dashboard() {
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [dialogTransition, setDialogTransition] = useState(null);
   const isSmallScreen = useMediaQuery("(max-width:600px)");
   const isTabletScreen = useMediaQuery("(max-width:900px)");
   const navigate = useNavigate();
@@ -60,8 +61,12 @@ function Dashboard() {
     }
   }, [searchQuery, notes]);
 
-  const handleEditClick = (note) => {
+  const handleEditClick = (note, event) => {
     setCurrentNote(note);
+    const rect = event.currentTarget.getBoundingClientRect();
+    setDialogTransition(() => (props) => (
+      <Grow {...props} style={{ transformOrigin: `${rect.left + rect.width / 2}px ${rect.top + rect.height / 2}px` }} />
+    ));
     setShowDialog(true);
   };
 
@@ -102,6 +107,15 @@ function Dashboard() {
       );
     } catch (error) {
       console.error("Failed to toggle pin status", error);
+    }
+  };
+
+
+  const handleSaveNewNote = async () => {
+    if (currentNote.title && currentNote.description) {
+      await addNote(currentNote.title, currentNote.description);
+      setShowDialog(false);
+      setSnackbar({ open: true, message: "Note added successfully!", severity: "success" });
     }
   };
 
@@ -256,19 +270,22 @@ function Dashboard() {
                   return (b.updatedAt || b.createdAt || 0) - (a.updatedAt || a.createdAt || 0);
                 })
                 .map((note) => (
-                  <Card
+                  <Box
                     key={note.id}
                     sx={{
-                      transition: "0.3s",
-                      "&:hover": { transform: "scale(1.05)" },
-                      bgcolor: "background.paper",
-                      boxShadow: 3,
-                      borderRadius: 2,
-                      p: 2,
+                      border: "1px solid #e0e0e0",
+                      borderRadius: "8px",
+                      padding: "16px",
+                      backgroundColor: "#fff",
+                      boxShadow: "0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24)",
+                      transition: "all 0.3s cubic-bezier(.25,.8,.25,1)",
+                      "&:hover": {
+                        boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2), 0 6px 20px rgba(0, 0, 0, 0.19)",
+                      },
                       cursor: "pointer",
                       position: "relative",
                     }}
-                    onClick={() => handleEditClick(note)}
+                    onClick={(event) => handleEditClick(note, event)}
                   >
                     {note.pinned && (
                       <Box
@@ -301,7 +318,7 @@ function Dashboard() {
                         </Typography>
                       </Box>
                     </CardContent>
-                  </Card>
+                  </Box>
                 ))}
             </Masonry>
           )}
@@ -309,79 +326,94 @@ function Dashboard() {
       </Container>
 
       {/* Edit Note Dialog */}
-      <Dialog open={showDialog} onClose={() => setShowDialog(false)} fullWidth maxWidth="sm">
-        <DialogTitle>Edit Note</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            <Box
-              contentEditable
-              suppressContentEditableWarning
-              onBlur={(e) => setCurrentNote({ ...currentNote, title: e.target.innerText })}
-              sx={{
-                fontSize: "1.2rem",
-                fontWeight: "bold",
-                outline: "none",
-                padding: "8px",
-                borderBottom: "1px solid #ddd",
-              }}
-            >
-              {currentNote.title}
-            </Box>
-            <Box
-              contentEditable
-              suppressContentEditableWarning
-              onBlur={(e) => setCurrentNote({ ...currentNote, description: e.target.innerText })}
-              sx={{
-                fontSize: "1rem",
-                minHeight: "100px",
-                maxHeight: "200px",
-                overflowY: "auto",
-                outline: "none",
-                padding: "8px",
-              }}
-            >
-              {currentNote.description}
-            </Box>
-            <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
-              Created At: {formatDate(currentNote.createdAt)}
-            </Typography>
-            <Typography variant="body2" color="textSecondary">
-              Last Updated: {formatDate(currentNote.updatedAt)}
-            </Typography>
-          </Box>
-          <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 2 }}>
-            <IconButton
-              color={currentNote.pinned ? "primary" : "default"}
-              onClick={async () => {
-                try {
-                  await handleTogglePinNote(currentNote.id, currentNote.pinned);
-                  setShowDialog(false);
-                } catch (error) {
-                  console.error("Error pinning note:", error);
-                }
-              }}
-            >
-              <PinIcon />
-            </IconButton>
-            <IconButton
-              color="error"
-              onClick={async (e) => {
-                e.stopPropagation();
-                await deleteNote(currentNote.id);
-                setShowDialog(false);
-              }}
-            >
-              <DeleteIcon />
-            </IconButton>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setShowDialog(false)}>Cancel</Button>
-          <Button onClick={() => handleUpdateNote()} color="primary">
-            Save Changes
-          </Button>
-        </DialogActions>
-      </Dialog>
+<Dialog
+  open={showDialog}
+  onClose={() => setShowDialog(false)}
+  fullWidth
+  maxWidth="sm"
+  TransitionComponent={dialogTransition}
+  transitionDuration={500}
+  PaperProps={{
+    sx: {
+      borderRadius: 2,
+      boxShadow: 3,
+      padding: 2,
+    },
+  }}
+>
+  <DialogTitle sx={{ fontWeight: 'bold', fontSize: '1.25rem' }}>
+    {currentNote.id ? "Edit Note" : "Add Note"}
+  </DialogTitle>
+  <DialogContent>
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+      <TextField
+        label="Title"
+        value={currentNote.title}
+        onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
+        fullWidth
+        margin="normal"
+        variant="outlined"
+        sx={{ borderRadius: 1 }}
+      />
+      <TextField
+        label="Description"
+        value={currentNote.description}
+        onChange={(e) => setCurrentNote({ ...currentNote, description: e.target.value })}
+        fullWidth
+        multiline
+        rows={4}
+        margin="normal"
+        variant="outlined"
+        sx={{ borderRadius: 1 }}
+      />
+      {currentNote.createdAt && (
+        <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
+          Created At: {formatDate(currentNote.createdAt)}
+        </Typography>
+      )}
+      {currentNote.updatedAt && (
+        <Typography variant="body2" color="textSecondary">
+          Last Updated: {formatDate(currentNote.updatedAt)}
+        </Typography>
+      )}
+    </Box>
+    <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 2 }}>
+      {currentNote.id && (
+        <IconButton
+          color={currentNote.pinned ? "primary" : "default"}
+          onClick={async () => {
+            try {
+              await handleTogglePinNote(currentNote.id, currentNote.pinned);
+              setShowDialog(false);
+            } catch (error) {
+              console.error("Error pinning note:", error);
+            }
+          }}
+        >
+          <PinIcon />
+        </IconButton>
+      )}
+      {currentNote.id && (
+        <IconButton
+          color="error"
+          onClick={async (e) => {
+            e.stopPropagation();
+            await deleteNote(currentNote.id);
+            setShowDialog(false);
+          }}
+        >
+          <DeleteIcon />
+        </IconButton>
+      )}
+    </Box>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setShowDialog(false)}>Cancel</Button>
+    <Button onClick={currentNote.id ? handleUpdateNote : handleSaveNewNote} color="primary">
+      {currentNote.id ? "Save Changes" : "Add Note"}
+    </Button>
+  </DialogActions>
+</Dialog>
 
       {/* Snackbar Notifications */}
       <Snackbar

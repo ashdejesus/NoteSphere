@@ -5,7 +5,6 @@ import {
   Toolbar,
   Typography,
   IconButton,
-  Button,
   Container,
   Drawer,
   List,
@@ -27,7 +26,6 @@ import {
   PushPin as PushPinIcon,
   QuestionAnswer as FAQIcon,
 } from "@mui/icons-material";
-import { auth, logOut } from "../firebase";
 
 function Help() {
   const [drawerOpen, setDrawerOpen] = useState(false);
