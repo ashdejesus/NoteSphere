@@ -45,7 +45,7 @@ import {
   PushPin as PinIcon,
 } from "@mui/icons-material";
 import Masonry from "@mui/lab/Masonry";
-
+import logo from "/images/PNG.png"; // Import your logo
 function Dashboard() {
   const [user, setUser] = useState(null);
   const [notes, setNotes] = useState([]);
@@ -159,38 +159,42 @@ function Dashboard() {
 
   return (
     <>
-      {/* Navbar */}
-      <AppBar position="static" color="default">
-        <Toolbar>
-          <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1, cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
-            NoteSphere
-          </Typography>
-          {user && (
-            <>
-              <IconButton onClick={handleMenuOpen} sx={{ ml: 2 }}>
-                <Avatar src={user.photoURL || "/path-to-default-avatar.jpg"} sx={{ bgcolor: "primary.main", width: 40, height: 40 }}>
-                  {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
-                </Avatar>
-              </IconButton>
-              <Menu
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleMenuClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "right" }}
-              >
-                <MenuItem onClick={handleMenuClose}>{user.displayName || "Profile"}</MenuItem>
-                <MenuItem onClick={logOut} sx={{ color: "red" }}>
-                  <LogoutIcon sx={{ mr: 1 }} /> Logout
-                </MenuItem>
-              </Menu>
-            </>
-          )}
-        </Toolbar>
-      </AppBar>
+   {/* Navbar */}
+<AppBar position="static" color="default">
+  <Toolbar>
+    <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
+      <MenuIcon />
+    </IconButton>
+    <img
+      src={logo}
+      alt="NoteSphere Logo"
+      style={{ height: '40px', cursor: 'pointer' }}
+      onClick={() => navigate("/dashboard")}
+    />
+    <div style={{ flexGrow: 1 }}></div> {/* This div pushes the Avatar to the right */}
+    {user && (
+      <>
+        <IconButton onClick={handleMenuOpen} sx={{ ml: 2 }}>
+          <Avatar src={user.photoURL || "/path-to-default-avatar.jpg"} sx={{ bgcolor: "primary.main", width: 40, height: 40 }}>
+            {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
+          </Avatar>
+        </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleMenuClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem onClick={handleMenuClose}>{user.displayName || "Profile"}</MenuItem>
+          <MenuItem onClick={logOut} sx={{ color: "red" }}>
+            <LogoutIcon sx={{ mr: 1 }} /> Logout
+          </MenuItem>
+        </Menu>
+      </>
+    )}
+  </Toolbar>
+</AppBar>
 
        {/* Sidebar Drawer */}
        <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
@@ -232,16 +236,16 @@ function Dashboard() {
         </List>
       </Drawer>
 
-      {/* Main Content */}
-      <Container sx={{ mt: 4 }}>
-        <Typography variant="h4" align="center">
-          NoteSphere
-        </Typography>
-        {user && (
-          <Typography variant="subtitle1" align="center" sx={{ mt: 1 }}>
-            Welcome, {user.displayName}
-          </Typography>
-        )}
+    {/* Main Content */}
+<Container sx={{ mt: 4 }}>
+  <Typography variant="h4" align="center">
+    {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+  </Typography>
+  {user && (
+    <Typography variant="subtitle1" align="center" sx={{ mt: 1 }}>
+      Welcome, {user.displayName}
+    </Typography>
+  )}
 
         {/* Search Bar */}
         <TextField
@@ -373,7 +377,7 @@ function Dashboard() {
     },
   }}
 >
-  <DialogTitle sx={{ fontWeight: 'bold', fontSize: '1.25rem' }}>
+  <DialogTitle sx={{ fontWeight: 'bold', fontSize: '1.25rem', fontFamily: 'monospace' }}>
     {currentNote.id ? "Edit Note" : "Add Note"}
   </DialogTitle>
   <DialogContent>
@@ -385,7 +389,7 @@ function Dashboard() {
         fullWidth
         margin="normal"
         variant="outlined"
-        sx={{ borderRadius: 1 }}
+        sx={{ borderRadius: 1, fontFamily: 'monospace' }}
       />
       <TextField
         label="Description"

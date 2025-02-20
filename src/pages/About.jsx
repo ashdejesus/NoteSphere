@@ -39,10 +39,11 @@ import {
   People as PeopleIcon,
   Logout as LogoutIcon,
 } from "@mui/icons-material";
+import logo from "/images/PNG.png"; 
 
 const teamMembers = [
   {
-    name: "Nichoe Ashley De jesus",
+    name: "Nichoe De Jesus",
     position: "Backend Developer",
     image: "images/dejesus.jpg",
     description:
@@ -106,37 +107,44 @@ function About() {
   return (
     <>
       {/* Navbar */}
-      <AppBar position="static" color="default">
-        <Toolbar>
-          <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1, cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
-            NoteSphere
-          </Typography>
-          {user && (
-            <>
-              <IconButton onClick={handleMenuOpen} sx={{ ml: 2 }}>
-                <Avatar src={user.photoURL || "/path-to-default-avatar.jpg"} sx={{ bgcolor: "primary.main", width: 40, height: 40 }}>
-                  {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
-                </Avatar>
-              </IconButton>
-              <Menu
-                anchorEl={anchorEl}
-                open={open}
-                onClose={handleMenuClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "right" }}
-              >
-                <MenuItem onClick={handleMenuClose}>{user.displayName || "Profile"}</MenuItem>
-                <MenuItem onClick={logOut} sx={{ color: "red" }}>
-                  <LogoutIcon sx={{ mr: 1 }} /> Logout
-                </MenuItem>
-              </Menu>
-            </>
-          )}
-        </Toolbar>
-      </AppBar>
+<AppBar position="static" color="default">
+  <Toolbar>
+    <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
+      <MenuIcon />
+    </IconButton>
+    <img
+      src={logo}
+      alt="NoteSphere Logo"
+      style={{ height: '40px', cursor: 'pointer' }}
+      onClick={() => navigate("/dashboard")}
+    />
+     <Typography variant="h6" component="div" sx={{ ml: 2 }}>
+      NoteSphere
+    </Typography>
+    <div style={{ flexGrow: 1 }}></div> {/* This div pushes the Avatar to the right */}
+    {user && (
+      <>
+        <IconButton onClick={handleMenuOpen} sx={{ ml: 2 }}>
+          <Avatar src={user.photoURL || "/path-to-default-avatar.jpg"} sx={{ bgcolor: "primary.main", width: 40, height: 40 }}>
+            {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
+          </Avatar>
+        </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleMenuClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+          transformOrigin={{ vertical: "top", horizontal: "right" }}
+        >
+          <MenuItem onClick={handleMenuClose}>{user.displayName || "Profile"}</MenuItem>
+          <MenuItem onClick={logOut} sx={{ color: "red" }}>
+            <LogoutIcon sx={{ mr: 1 }} /> Logout
+          </MenuItem>
+        </Menu>
+      </>
+    )}
+  </Toolbar>
+</AppBar>
 
       {/* Sidebar Drawer */}
       <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
@@ -186,8 +194,7 @@ function About() {
         </Typography>
       </Container>
 
-      {/* Meet the Team */}
-      <Container sx={{ mt: 6, textAlign: "center" }}>
+      <Container sx={{ mt: 6, textAlign: "center", maxWidth: "lg" }}>
         <Typography variant="h5" sx={{ fontWeight: "bold", display: "flex", justifyContent: "center", alignItems: "center" }}>
           <PeopleIcon sx={{ mr: 1 }} /> Meet the Team
         </Typography>
@@ -250,8 +257,9 @@ function About() {
         closeAfterTransition
         BackdropComponent={Backdrop}
         BackdropProps={{ timeout: 500 }}
+        sx={{ transition: 'opacity 0.5s ease-in-out' }} // Added transition style
       >
-        <Fade in={Boolean(selectedMember)}>
+        <Fade in={Boolean(selectedMember)} timeout={{ enter: 500, exit: 500 }}>
           <Box sx={{
             position: "absolute",
             top: "50%",
@@ -262,7 +270,8 @@ function About() {
             borderRadius: 3,
             boxShadow: 24,
             p: 4,
-            textAlign: "center"
+            textAlign: "center",
+            transition: 'opacity 0.5s ease-in-out' // Added transition style
           }}>
             {selectedMember && (
               <>

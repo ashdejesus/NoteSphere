@@ -10,6 +10,7 @@
     "@mui/lab": "^6.0.0-beta.26",
     "@mui/material": "^6.4.5",
     "@mui/styled-engine-sc": "^6.4.3",
+    "@mui/toolpad": "^0.1.51",
     "bootstrap": "^5.3.3",
     "cra-template": "1.2.0",
     "firebase": "^11.3.1",
