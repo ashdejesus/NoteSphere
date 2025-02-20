@@ -24,9 +24,7 @@ import {
   Button,
   InputAdornment,
   Dialog,
-  DialogTitle,
   DialogContent,
-  DialogActions,
   TextField,
   Snackbar,
   Alert,
@@ -369,7 +367,7 @@ function Dashboard() {
         </Box>
       </Container>
 
-      {/* Edit Note Dialog */}
+    {/* Edit Note Dialog */}
 <Dialog
   open={showDialog}
   onClose={() => setShowDialog(false)}
@@ -385,31 +383,26 @@ function Dashboard() {
     },
   }}
 >
-  <DialogTitle sx={{ fontWeight: 'bold', fontSize: '1.25rem', fontFamily: 'monospace' }}>
-    {currentNote.id ? "Edit Note" : "Add Note"}
-  </DialogTitle>
   <DialogContent>
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <TextField
-        label="Title"
-        value={currentNote.title}
-        onChange={(e) => setCurrentNote({ ...currentNote, title: e.target.value })}
-        fullWidth
-        margin="normal"
-        variant="outlined"
-        sx={{ borderRadius: 1, fontFamily: 'monospace' }}
-      />
-      <TextField
-        label="Description"
-        value={currentNote.description}
-        onChange={(e) => setCurrentNote({ ...currentNote, description: e.target.value })}
-        fullWidth
-        multiline
-        rows={4}
-        margin="normal"
-        variant="outlined"
-        sx={{ borderRadius: 1 }}
-      />
+      <Typography
+        variant="h6"
+        contentEditable
+        suppressContentEditableWarning
+        onBlur={(e) => setCurrentNote({ ...currentNote, title: e.target.innerText })}
+        sx={{ borderBottom: '1px solid transparent', fontWeight: 'bold', '&:focus': { borderBottom: '1px solid black' } }}
+      >
+        {currentNote.title || "Title"}
+      </Typography>
+      <Typography
+        variant="body1"
+        contentEditable
+        suppressContentEditableWarning
+        onBlur={(e) => setCurrentNote({ ...currentNote, description: e.target.innerText })}
+        sx={{ borderBottom: '1px solid transparent', '&:focus': { borderBottom: '1px solid black' }, minHeight: '100px' }}
+      >
+        {currentNote.description || "Take a note..."}
+      </Typography>
       {currentNote.createdAt && (
         <Typography variant="body2" color="textSecondary" sx={{ mt: 2 }}>
           Created At: {formatDate(currentNote.createdAt)}
@@ -421,44 +414,44 @@ function Dashboard() {
         </Typography>
       )}
     </Box>
-    <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 2 }}>
-      {currentNote.id && (
-        <IconButton
-          color={currentNote.pinned ? "primary" : "default"}
-          onClick={async () => {
-            try {
-              await handleTogglePinNote(currentNote.id, currentNote.pinned);
+    <Box sx={{ display: "flex", justifyContent: "space-between", mt: 2 }}>
+      <Box>
+        {currentNote.id && (
+          <IconButton
+            color={currentNote.pinned ? "primary" : "default"}
+            onClick={async () => {
+              try {
+                await handleTogglePinNote(currentNote.id, currentNote.pinned);
+                setShowDialog(false);
+              } catch (error) {
+                console.error("Error pinning note:", error);
+              }
+            }}
+          >
+            <PinIcon />
+          </IconButton>
+        )}
+        {currentNote.id && (
+          <IconButton
+            color="error"
+            onClick={async (e) => {
+              e.stopPropagation();
+              await deleteNote(currentNote.id);
               setShowDialog(false);
-            } catch (error) {
-              console.error("Error pinning note:", error);
-            }
-          }}
-        >
-          <PinIcon />
-        </IconButton>
-      )}
-      {currentNote.id && (
-        <IconButton
-          color="error"
-          onClick={async (e) => {
-            e.stopPropagation();
-            await deleteNote(currentNote.id);
-            setShowDialog(false);
-          }}
-        >
-          <DeleteIcon />
-        </IconButton>
-      )}
+            }}
+          >
+            <DeleteIcon />
+          </IconButton>
+        )}
+      </Box>
+      <Box>
+        <Button onClick={currentNote.id ? handleUpdateNote : handleSaveNewNote} color="inherit">
+          {currentNote.id ? "Save" : "Add Note"}
+        </Button>
+      </Box>
     </Box>
   </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setShowDialog(false)}>Cancel</Button>
-    <Button onClick={currentNote.id ? handleUpdateNote : handleSaveNewNote} color="primary">
-      {currentNote.id ? "Save Changes" : "Add Note"}
-    </Button>
-  </DialogActions>
 </Dialog>
-
       {/* Snackbar Notifications */}
       <Snackbar
         open={snackbar.open}
