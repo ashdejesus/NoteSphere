@@ -12,6 +12,7 @@ import {
   Drawer,
   List,
   ListItem,
+  Grid,
   ListItemButton,
   ListItemIcon,
   ListItemText,
@@ -62,43 +63,50 @@ function Help() {
 
   return (
     <>
-      {/* Navbar */}
+       {/* Navbar */}
 <AppBar position="static" color="default">
   <Toolbar>
-    <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
-      <MenuIcon />
-    </IconButton>
-    <img
-      src={logo}
-      alt="NoteSphere Logo"
-      style={{ height: '40px', cursor: 'pointer' }}
-      onClick={() => navigate("/dashboard")}
-    />
-    
-    <div style={{ flexGrow: 1 }}></div> {/* This div pushes the Avatar to the right */}
-    {user && (
-      <>
-        <IconButton onClick={handleMenuOpen} sx={{ ml: 2 }}>
-          <Avatar src={user.photoURL || "/path-to-default-avatar.jpg"} sx={{ bgcolor: "primary.main", width: 40, height: 40 }}>
-            {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
-          </Avatar>
+    <Grid container alignItems="center">
+      <Grid item xs={4}>
+        <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
+          <MenuIcon />
         </IconButton>
-        <Menu
-          anchorEl={anchorEl}
-          open={open}
-          onClose={handleMenuClose}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-          transformOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <MenuItem onClick={handleMenuClose}>{user.displayName || "Profile"}</MenuItem>
-          <MenuItem onClick={logOut} sx={{ color: "red" }}>
-            <LogoutIcon sx={{ mr: 1 }} /> Logout
-          </MenuItem>
-        </Menu>
-      </>
-    )}
+      </Grid>
+      <Grid item xs={4} container justifyContent="center">
+        <img
+          src={logo}
+          alt="NoteSphere Logo"
+          style={{ height: '40px', cursor: 'pointer' }}
+          onClick={() => navigate("/dashboard")}
+        />
+      </Grid>
+      <Grid item xs={4} container justifyContent="flex-end">
+        {user && (
+          <>
+            <IconButton onClick={handleMenuOpen} sx={{ ml: 2 }}>
+              <Avatar src={user.photoURL || "/path-to-default-avatar.jpg"} sx={{ bgcolor: "primary.main", width: 40, height: 40 }}>
+                {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
+              </Avatar>
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleMenuClose}
+              anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+              transformOrigin={{ vertical: "top", horizontal: "right" }}
+            >
+              <MenuItem onClick={handleMenuClose}>{user.displayName || "Profile"}</MenuItem>
+              <MenuItem onClick={logOut} sx={{ color: "red" }}>
+                <LogoutIcon sx={{ mr: 1 }} /> Logout
+              </MenuItem>
+            </Menu>
+          </>
+        )}
+      </Grid>
+    </Grid>
   </Toolbar>
 </AppBar>
+
 
       {/* Sidebar Drawer */}
       <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
@@ -142,7 +150,7 @@ function Help() {
       {/* Help Content */}
       <Container sx={{ mt: 4, textAlign: "center", fontFamily: "'Space Mono', monospace" }}>
         <Typography variant="h4">Need Help?</Typography>
-        <Typography variant="body1" sx={{ mt: 2 }}>
+        <Typography variant="body1" sx={{ mt: 2,}}>
           Welcome to the Help Center! Here you will find information on how to use <strong>NoteSphere</strong> efficiently.
           If you need additional assistance, feel free to reach out.
         </Typography>
