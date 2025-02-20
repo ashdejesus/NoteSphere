@@ -6,7 +6,6 @@ import {
   Toolbar,
   Typography,
   IconButton,
-  Button,
   Container,
   Drawer,
   List,
@@ -14,15 +13,18 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  Menu,
-  MenuItem,
   Divider,
   Box,
   Link,
+  Card,
+  CardContent,
+  CardMedia,
+  Modal,
+  Backdrop,
+  Fade,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
-  Logout as LogoutIcon,
   Home as HomeIcon,
   Info as InfoIcon,
   Help as HelpIcon,
@@ -31,53 +33,108 @@ import {
   PrivacyTip as PrivacyIcon,
   Email as EmailIcon,
   GitHub as GitHubIcon,
+  People as PeopleIcon,
 } from "@mui/icons-material";
-import { auth, logOut } from "../firebase";
+
+const teamMembers = [
+  {
+    name: "Nichoe Ashley De jesus",
+    position: "Backend Developer",
+    image: "/path-to-your-image1.jpg",
+    description:
+      "Ash is a dedicated backend developer who makes sure everything runs smoothly behind the scenes. He handles authentication, database management, and real-time updates using Firebase.",
+    github: "https://github.com/ashdejesus",
+  },
+  {
+    name: "Czernycrille Abellera",
+    position: "Frontend Developer",
+    image: "/images/Abellera.jpg",
+    description:
+      "Czernycrille is our frontend developer who builds the look and feel of our app. She focuses on making the interface user-friendly and responsive.",
+    github: "https://github.com/aiccrg",
+  },
+  {
+    name: "Jesryl Capales",
+    position: "UI/UX Designer",
+    image: "/images/Capales.jpg",
+    description:
+      "Jes specializes in designing intuitive user interfaces and focuses on enhancing usability and aesthetics.",
+    github: "https://github.com/jes-art",
+  },
+];
 
 function About() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedMember, setSelectedMember] = useState(null);
   const navigate = useNavigate();
+
+  const handleOpenModal = (member) => {
+    setSelectedMember(member);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedMember(null);
+  };
 
   return (
     <>
       {/* Navbar */}
       <AppBar position="static" color="default">
-      <Toolbar>
-  <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
-    <MenuIcon />
-  </IconButton>
-  <Typography variant="h6" sx={{ flexGrow: 1, cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
-    NoteSphere
-  </Typography>
-</Toolbar>
-
+        <Toolbar>
+          <IconButton
+            edge="start"
+            color="inherit"
+            onClick={() => setDrawerOpen(true)}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography
+            variant="h6"
+            sx={{ flexGrow: 1, cursor: "pointer" }}
+            onClick={() => navigate("/dashboard")}
+          >
+            NoteSphere
+          </Typography>
+        </Toolbar>
       </AppBar>
 
       {/* Sidebar Drawer */}
-      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+      >
         <List sx={{ width: 250 }}>
           <ListItem disablePadding>
             <ListItemButton onClick={() => navigate("/dashboard")}>
-              <ListItemIcon><HomeIcon /></ListItemIcon>
+              <ListItemIcon>
+                <HomeIcon />
+              </ListItemIcon>
               <ListItemText primary="Dashboard" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
             <ListItemButton onClick={() => navigate("/add-note")}>
-              <ListItemIcon><AddIcon /></ListItemIcon>
+              <ListItemIcon>
+                <AddIcon />
+              </ListItemIcon>
               <ListItemText primary="Add Note" />
             </ListItemButton>
           </ListItem>
           <Divider />
           <ListItem disablePadding>
             <ListItemButton onClick={() => navigate("/about")}>
-              <ListItemIcon><InfoIcon /></ListItemIcon>
+              <ListItemIcon>
+                <InfoIcon />
+              </ListItemIcon>
               <ListItemText primary="About" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
             <ListItemButton onClick={() => navigate("/help")}>
-              <ListItemIcon><HelpIcon /></ListItemIcon>
+              <ListItemIcon>
+                <HelpIcon />
+              </ListItemIcon>
               <ListItemText primary="Help" />
             </ListItemButton>
           </ListItem>
@@ -88,50 +145,105 @@ function About() {
       <Container sx={{ mt: 4, textAlign: "center", fontFamily: "'Space Mono', monospace" }}>
         <Typography variant="h4">Welcome to NoteSphere!</Typography>
         <Typography variant="body1" sx={{ mt: 2 }}>
-          A modern, minimalist note-taking app designed to help you <strong>capture, organize,</strong> and <strong>access</strong> your
-          thoughts effortlessly. In today’s fast-paced world, we believe that staying organized should be simple, distraction-free, and efficient.
+          A modern, minimalist note-taking app designed to help you <strong>capture, organize,</strong> and <strong>access</strong> your thoughts effortlessly. In today’s fast-paced world, we believe that staying organized should be simple, distraction-free, and efficient.
         </Typography>
       </Container>
 
+      {/* Meet the Team (Moved Here) */}
+      <Container sx={{ mt: 6, textAlign: "center" }}>
+        <Typography variant="h5" sx={{ fontWeight: "bold", display: "flex", justifyContent: "center", alignItems: "center" }}>
+          <PeopleIcon sx={{ mr: 1 }} /> Meet the Team
+        </Typography>
+
+        <Box sx={{ display: "flex", justifyContent: "center", flexWrap: "wrap", mt: 4, gap: 4 }}>
+          {teamMembers.map((member, index) => (
+            <Card
+              key={index}
+              sx={{ maxWidth: 300, textAlign: "center", borderRadius: 3, cursor: "pointer", transition: "0.3s", "&:hover": { boxShadow: 6 } }}
+              onClick={() => handleOpenModal(member)}
+            >
+              <CardMedia>
+                <Avatar src={member.image} sx={{ width: 120, height: 120, margin: "auto", mt: 2 }} />
+              </CardMedia>
+              <CardContent>
+                <Typography variant="h6">{member.name}</Typography>
+                <Typography variant="body2" color="textSecondary">{member.position}</Typography>
+              </CardContent>
+            </Card>
+          ))}
+        </Box>
+      </Container>
+
+      {/* Our Mission */}
       <Container sx={{ mt: 4, fontFamily: "'Space Mono', monospace" }}>
         <Typography variant="h5" sx={{ display: "flex", alignItems: "center" }}>
           <TaskIcon sx={{ mr: 1 }} /> Our Mission
         </Typography>
         <Typography variant="body1" sx={{ mt: 2 }}>
-          At <strong>NoteSphere</strong>, we are committed to making note-taking as seamless as possible. Whether you're a student managing assignments, a professional keeping track of tasks, or someone who simply loves to jot down ideas, our platform is designed to <strong>enhance productivity</strong> while maintaining a clean, distraction-free environment.
+          At <strong>NoteSphere</strong>, we are committed to making note-taking as seamless as
+          possible. Whether you're a student managing assignments, a professional keeping track
+          of tasks, or someone who simply loves to jot down ideas, our platform is designed to
+          <strong> enhance productivity</strong> while maintaining a clean, distraction-free
+          environment.
+          </Typography>
+          <Typography variant="body1" sx={{ mt: 2 }}>
+          We believe that the best tools are the ones that stay out of your way and just work.
+           That’s why NoteSphere is <strong>lightweight, responsive, and easy to use</strong>, 
+           ensuring that you can focus on what truly matters—your thoughts.
         </Typography>
-        <Typography variant="body1" sx={{ mt: 2 }}>
-          We believe that the best tools are the ones that stay out of your way and just work. That’s why NoteSphere is <strong>lightweight, responsive, and easy to use</strong>, ensuring that you can focus on what truly matters—your thoughts.
-        </Typography>
-
         <Typography variant="h5" sx={{ mt: 4, display: "flex", alignItems: "center" }}>
           <PrivacyIcon sx={{ mr: 1 }} /> Privacy & Safety
         </Typography>
         <Typography variant="body1" sx={{ mt: 2 }}>
-          We understand that your notes may contain personal, sensitive, or important information. That’s why we take <strong>security and privacy</strong> seriously.
+          We understand that your notes may contain personal, sensitive, or important information.
+           That’s why we take <strong>security and privacy</strong> seriously.
         </Typography>
         <Typography variant="body1" sx={{ mt: 2 }}>
-          Your data is stored securely using <strong>Firebase Firestore</strong>, ensuring that only you have access to your notes. Unlike many other platforms, we <strong>do not</strong> sell or share your data with third parties. Your information belongs to you, and we’re committed to keeping it that way.
-        </Typography>
-
-        <Typography variant="h5" sx={{ mt: 4, display: "flex", alignItems: "center" }}>
-          <EmailIcon sx={{ mr: 1 }} /> Contact & Feedback
-        </Typography>
-        <Typography variant="body1" sx={{ mt: 2 }}>
-          We’d love to hear your feedback! If you have any suggestions, issues, or feature requests, feel free to reach out:
-        </Typography>
-
-        <Typography variant="body1" sx={{ mt: 2, display: "flex", alignItems: "center" }}>
-          <GitHubIcon sx={{ mr: 1 }} /> GitHub:
-          <Link href="https://github.com/aiccrg" target="_blank" rel="noopener noreferrer" sx={{ ml: 1 }}>
-            github.com/aiccrg
-          </Link>
-          <span style={{ margin: "0 8px" }}>|</span>
-          <Link href="https://github.com/ashdejesus" target="_blank" rel="noopener noreferrer">
-            github.com/ashdejesus
-          </Link>
+          Your data is stored securely using <strong>Firebase Firestore</strong>, ensuring 
+          that only you have access to your notes. Unlike many other platforms, 
+          we <strong>do not</strong> sell or share your data with third parties.
+           Your information belongs to you, and we’re committed to keeping it that way.
         </Typography>
       </Container>
+
+      {/* Modal for Team Member Details */}
+      <Modal
+        open={Boolean(selectedMember)}
+        onClose={handleCloseModal}
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{ timeout: 500 }}
+      >
+        <Fade in={Boolean(selectedMember)}>
+          <Box sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            borderRadius: 3,
+            boxShadow: 24,
+            p: 4,
+            textAlign: "center"
+          }}>
+            {selectedMember && (
+              <>
+                <Avatar src={selectedMember.image} sx={{ width: 100, height: 100, margin: "auto", mb: 2 }} />
+                <Typography variant="h5">{selectedMember.name}</Typography>
+                <Typography variant="body1" color="textSecondary">{selectedMember.position}</Typography>
+                <Typography variant="body2" sx={{ mt: 2 }}>{selectedMember.description}</Typography>
+                <Typography sx={{ mt: 2 }}>
+                  <GitHubIcon sx={{ verticalAlign: "middle", mr: 1 }} />
+                  <Link href={selectedMember.github} target="_blank" rel="noopener noreferrer">
+                    {selectedMember.github}
+                  </Link>
+                </Typography>
+              </>
+            )}
+          </Box>
+        </Fade>
+      </Modal>
     </>
   );
 }
