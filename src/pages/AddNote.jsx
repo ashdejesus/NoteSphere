@@ -12,8 +12,22 @@ import {
   Snackbar,
   Alert,
   Paper,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Divider,
 } from "@mui/material";
-import { Menu as MenuIcon, Save as SaveIcon } from "@mui/icons-material";
+import {
+  Menu as MenuIcon,
+  Save as SaveIcon,
+  Home as HomeIcon,
+  Add as AddIcon,
+  Info as InfoIcon,
+  Help as HelpIcon,
+} from "@mui/icons-material";
 
 function AddNote() {
   const [title, setTitle] = useState("");
@@ -22,6 +36,7 @@ function AddNote() {
   const [noteId, setNoteId] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [fadeOut, setFadeOut] = useState(false); // 🔹 Track animation state
+  const [drawerOpen, setDrawerOpen] = useState(false); // 🔹 Drawer state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,7 +78,7 @@ function AddNote() {
       {/* Navbar */}
       <AppBar position="static" color="default">
         <Toolbar>
-          <IconButton edge="start" color="inherit">
+          <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" sx={{ flexGrow: 1, cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
@@ -71,6 +86,37 @@ function AddNote() {
           </Typography>
         </Toolbar>
       </AppBar>
+
+      {/* Sidebar Drawer */}
+      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <List sx={{ width: 250 }}>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/dashboard")}>
+              <ListItemIcon><HomeIcon /></ListItemIcon>
+              <ListItemText primary="Dashboard" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/add-note")}>
+              <ListItemIcon><AddIcon /></ListItemIcon>
+              <ListItemText primary="Add Note" />
+            </ListItemButton>
+          </ListItem>
+          <Divider />
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/about")}>
+              <ListItemIcon><InfoIcon /></ListItemIcon>
+              <ListItemText primary="About" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => navigate("/help")}>
+              <ListItemIcon><HelpIcon /></ListItemIcon>
+              <ListItemText primary="Help" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Drawer>
 
       {/* Note Input with Animation */}
       <Container
