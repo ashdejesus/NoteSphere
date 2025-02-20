@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { auth, logOut } from "../firebase";
+import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import {
   AppBar,
@@ -6,7 +8,6 @@ import {
   Toolbar,
   Typography,
   IconButton,
-  Container,
   Drawer,
   List,
   ListItem,
@@ -14,14 +15,17 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Menu,
+  MenuItem,
+  Container,
   Box,
-  Link,
   Card,
   CardContent,
   CardMedia,
   Modal,
   Backdrop,
   Fade,
+  Link,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -31,16 +35,16 @@ import {
   Add as AddIcon,
   TaskAlt as TaskIcon,
   PrivacyTip as PrivacyIcon,
-  Email as EmailIcon,
   GitHub as GitHubIcon,
   People as PeopleIcon,
+  Logout as LogoutIcon,
 } from "@mui/icons-material";
 
 const teamMembers = [
   {
     name: "Nichoe Ashley De jesus",
     position: "Backend Developer",
-    image: "/path-to-your-image1.jpg",
+    image: "images/dejesus.jpg",
     description:
       "Ash is a dedicated backend developer who makes sure everything runs smoothly behind the scenes. He handles authentication, database management, and real-time updates using Firebase.",
     github: "https://github.com/ashdejesus",
@@ -64,9 +68,32 @@ const teamMembers = [
 ];
 
 function About() {
+  const [user, setUser] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [selectedMember, setSelectedMember] = useState(null);
   const navigate = useNavigate();
+  const open = Boolean(anchorEl);
+
+  useEffect(() => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUser(user);
+      } else {
+        navigate("/");
+      }
+    });
+
+    return () => unsubscribeAuth();
+  }, [navigate]);
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
 
   const handleOpenModal = (member) => {
     setSelectedMember(member);
@@ -81,60 +108,70 @@ function About() {
       {/* Navbar */}
       <AppBar position="static" color="default">
         <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={() => setDrawerOpen(true)}
-          >
+          <IconButton edge="start" color="inherit" onClick={() => setDrawerOpen(true)}>
             <MenuIcon />
           </IconButton>
-          <Typography
-            variant="h6"
-            sx={{ flexGrow: 1, cursor: "pointer" }}
-            onClick={() => navigate("/dashboard")}
-          >
+          <Typography variant="h6" sx={{ flexGrow: 1, cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
             NoteSphere
           </Typography>
+          {user && (
+            <>
+              <IconButton onClick={handleMenuOpen} sx={{ ml: 2 }}>
+                <Avatar src={user.photoURL || "/path-to-default-avatar.jpg"} sx={{ bgcolor: "primary.main", width: 40, height: 40 }}>
+                  {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
+                </Avatar>
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleMenuClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+              >
+                <MenuItem onClick={handleMenuClose}>{user.displayName || "Profile"}</MenuItem>
+                <MenuItem onClick={logOut} sx={{ color: "red" }}>
+                  <LogoutIcon sx={{ mr: 1 }} /> Logout
+                </MenuItem>
+              </Menu>
+            </>
+          )}
         </Toolbar>
       </AppBar>
 
       {/* Sidebar Drawer */}
-      <Drawer
-        anchor="left"
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-      >
-        <List sx={{ width: 250 }}>
+      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <List sx={{ width: 250, p: 2, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          {user && (
+            <Avatar src={user.photoURL || "/path-to-default-avatar.jpg"} sx={{ bgcolor: "primary.main", width: 56, height: 56, mb: 1 }}>
+              {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
+            </Avatar>
+          )}
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            {user ? user.displayName : "Guest"}
+          </Typography>
+          <Divider sx={{ width: "100%", mb: 2 }} />
           <ListItem disablePadding>
             <ListItemButton onClick={() => navigate("/dashboard")}>
-              <ListItemIcon>
-                <HomeIcon />
-              </ListItemIcon>
+              <ListItemIcon><HomeIcon /></ListItemIcon>
               <ListItemText primary="Dashboard" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
             <ListItemButton onClick={() => navigate("/add-note")}>
-              <ListItemIcon>
-                <AddIcon />
-              </ListItemIcon>
+              <ListItemIcon><AddIcon /></ListItemIcon>
               <ListItemText primary="Add Note" />
             </ListItemButton>
           </ListItem>
           <Divider />
           <ListItem disablePadding>
             <ListItemButton onClick={() => navigate("/about")}>
-              <ListItemIcon>
-                <InfoIcon />
-              </ListItemIcon>
+              <ListItemIcon><InfoIcon /></ListItemIcon>
               <ListItemText primary="About" />
             </ListItemButton>
           </ListItem>
           <ListItem disablePadding>
             <ListItemButton onClick={() => navigate("/help")}>
-              <ListItemIcon>
-                <HelpIcon />
-              </ListItemIcon>
+              <ListItemIcon><HelpIcon /></ListItemIcon>
               <ListItemText primary="Help" />
             </ListItemButton>
           </ListItem>
@@ -149,7 +186,7 @@ function About() {
         </Typography>
       </Container>
 
-      {/* Meet the Team (Moved Here) */}
+      {/* Meet the Team */}
       <Container sx={{ mt: 6, textAlign: "center" }}>
         <Typography variant="h5" sx={{ fontWeight: "bold", display: "flex", justifyContent: "center", alignItems: "center" }}>
           <PeopleIcon sx={{ mr: 1 }} /> Meet the Team
@@ -185,24 +222,24 @@ function About() {
           of tasks, or someone who simply loves to jot down ideas, our platform is designed to
           <strong> enhance productivity</strong> while maintaining a clean, distraction-free
           environment.
-          </Typography>
-          <Typography variant="body1" sx={{ mt: 2 }}>
+        </Typography>
+        <Typography variant="body1" sx={{ mt: 2 }}>
           We believe that the best tools are the ones that stay out of your way and just work.
-           That’s why NoteSphere is <strong>lightweight, responsive, and easy to use</strong>, 
-           ensuring that you can focus on what truly matters—your thoughts.
+          That’s why NoteSphere is <strong>lightweight, responsive, and easy to use</strong>,
+          ensuring that you can focus on what truly matters—your thoughts.
         </Typography>
         <Typography variant="h5" sx={{ mt: 4, display: "flex", alignItems: "center" }}>
           <PrivacyIcon sx={{ mr: 1 }} /> Privacy & Safety
         </Typography>
         <Typography variant="body1" sx={{ mt: 2 }}>
           We understand that your notes may contain personal, sensitive, or important information.
-           That’s why we take <strong>security and privacy</strong> seriously.
+          That’s why we take <strong>security and privacy</strong> seriously.
         </Typography>
         <Typography variant="body1" sx={{ mt: 2 }}>
-          Your data is stored securely using <strong>Firebase Firestore</strong>, ensuring 
-          that only you have access to your notes. Unlike many other platforms, 
+          Your data is stored securely using <strong>Firebase Firestore</strong>, ensuring
+          that only you have access to your notes. Unlike many other platforms,
           we <strong>do not</strong> sell or share your data with third parties.
-           Your information belongs to you, and we’re committed to keeping it that way.
+          Your information belongs to you, and we’re committed to keeping it that way.
         </Typography>
       </Container>
 

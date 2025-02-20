@@ -2,14 +2,47 @@ import React, { useState, useEffect } from "react";
 import { auth, logOut, listenToNotes, deleteNote, updateNote, addNote } from "../firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
-import { useMediaQuery, Grow } from "@mui/material";
-import Avatar from "@mui/material/Avatar";
 import {
-  AppBar, Toolbar, Typography, IconButton, Button, Container, CardContent, InputAdornment, Dialog, DialogTitle, DialogContent,
-  DialogActions, TextField, Snackbar, Alert, Skeleton, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Divider, Box,
+  AppBar,
+  Avatar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  Menu,
+  MenuItem,
+  Container,
+  Box,
+  CardContent,
+  Button,
+  InputAdornment,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Snackbar,
+  Alert,
+  Skeleton,
+  useMediaQuery,
+  Grow,
 } from "@mui/material";
 import {
-  Menu as MenuIcon, Logout as LogoutIcon, Add as AddIcon, Home as HomeIcon, Info as InfoIcon, Help as HelpIcon, Delete as DeleteIcon, Search as SearchIcon, PushPin as PinIcon,
+  Menu as MenuIcon,
+  Logout as LogoutIcon,
+  Add as AddIcon,
+  Home as HomeIcon,
+  Info as InfoIcon,
+  Help as HelpIcon,
+  Delete as DeleteIcon,
+  Search as SearchIcon,
+  PushPin as PinIcon,
 } from "@mui/icons-material";
 import Masonry from "@mui/lab/Masonry";
 
@@ -110,7 +143,6 @@ function Dashboard() {
     }
   };
 
-
   const handleSaveNewNote = async () => {
     if (currentNote.title && currentNote.description) {
       await addNote(currentNote.title, currentNote.description);
@@ -139,7 +171,7 @@ function Dashboard() {
           {user && (
             <>
               <IconButton onClick={handleMenuOpen} sx={{ ml: 2 }}>
-                <Avatar sx={{ bgcolor: "primary.main", width: 40, height: 40 }}>
+                <Avatar src={user.photoURL || "/path-to-default-avatar.jpg"} sx={{ bgcolor: "primary.main", width: 40, height: 40 }}>
                   {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
                 </Avatar>
               </IconButton>
@@ -160,11 +192,11 @@ function Dashboard() {
         </Toolbar>
       </AppBar>
 
-      {/* Sidebar Drawer */}
-      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+       {/* Sidebar Drawer */}
+       <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
         <List sx={{ width: 250, p: 2, display: "flex", flexDirection: "column", alignItems: "center" }}>
           {user && (
-            <Avatar sx={{ bgcolor: "primary.main", width: 56, height: 56, mb: 1 }}>
+            <Avatar src={user.photoURL || "/path-to-default-avatar.jpg"} sx={{ bgcolor: "primary.main", width: 56, height: 56, mb: 1 }}>
               {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
             </Avatar>
           )}

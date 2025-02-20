@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { addNote, updateNote, auth } from "../firebase"; // Import `updateNote`
+import { addNote, updateNote, auth, logOut } from "../firebase"; // Import `updateNote` and `logOut`
 import { onAuthStateChanged } from "firebase/auth";
 import {
   AppBar,
@@ -19,6 +19,9 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
+  Menu,
+  MenuItem,
+  Avatar,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
@@ -27,6 +30,7 @@ import {
   Add as AddIcon,
   Info as InfoIcon,
   Help as HelpIcon,
+  Logout as LogoutIcon,
 } from "@mui/icons-material";
 
 function AddNote() {
@@ -37,7 +41,9 @@ function AddNote() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [fadeOut, setFadeOut] = useState(false); // 🔹 Track animation state
   const [drawerOpen, setDrawerOpen] = useState(false); // 🔹 Drawer state
+  const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
+  const open = Boolean(anchorEl);
 
   useEffect(() => {
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
@@ -73,6 +79,14 @@ function AddNote() {
     }
   };
 
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <>
       {/* Navbar */}
@@ -84,12 +98,42 @@ function AddNote() {
           <Typography variant="h6" sx={{ flexGrow: 1, cursor: "pointer" }} onClick={() => navigate("/dashboard")}>
             NoteSphere
           </Typography>
+          {user && (
+            <>
+              <IconButton onClick={handleMenuOpen} sx={{ ml: 2 }}>
+                <Avatar src={user.photoURL || "/path-to-default-avatar.jpg"} sx={{ bgcolor: "primary.main", width: 40, height: 40 }}>
+                  {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
+                </Avatar>
+              </IconButton>
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleMenuClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+              >
+                <MenuItem onClick={handleMenuClose}>{user.displayName || "Profile"}</MenuItem>
+                <MenuItem onClick={logOut} sx={{ color: "red" }}>
+                  <LogoutIcon sx={{ mr: 1 }} /> Logout
+                </MenuItem>
+              </Menu>
+            </>
+          )}
         </Toolbar>
       </AppBar>
 
       {/* Sidebar Drawer */}
       <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
-        <List sx={{ width: 250 }}>
+        <List sx={{ width: 250, p: 2, display: "flex", flexDirection: "column", alignItems: "center" }}>
+          {user && (
+            <Avatar src={user.photoURL || "/path-to-default-avatar.jpg"} sx={{ bgcolor: "primary.main", width: 56, height: 56, mb: 1 }}>
+              {user.displayName ? user.displayName.charAt(0).toUpperCase() : "U"}
+            </Avatar>
+          )}
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            {user ? user.displayName : "Guest"}
+          </Typography>
+          <Divider sx={{ width: "100%", mb: 2 }} />
           <ListItem disablePadding>
             <ListItemButton onClick={() => navigate("/dashboard")}>
               <ListItemIcon><HomeIcon /></ListItemIcon>
