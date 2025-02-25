@@ -1,6 +1,7 @@
 # NoteSphere
 
 NoteSphere is a smart note-taking application that allows users to organize and manage their notes efficiently. The app supports features such as note creation, categorization, and advanced search functionalities. It also offers user authentication and synchronization across devices for a seamless experience.
+https://notesphere-ff819.web.app/
 
 ## Features
 
